@@ -1,9 +1,9 @@
 # Logbog 30/08/2019
 
 **Hvad har vi lavet idag?**
-\newline
+<br/>
 Idag har vi sat vores repo op, og har fået sourcetree til at virke
 
 **Hvad skal vi lave næste gang?**
-\newline
+<br/>
 I donno 
