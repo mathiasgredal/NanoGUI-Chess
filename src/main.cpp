@@ -19,6 +19,33 @@ int main()
 
     // TRIN 0 - ØVELSE STARTER HER
     vector<vector<int> > board(8,vector<int>(8,0));
+    // Draw black side
+    fill(board.at(1).begin(),board.at(1).end(),B_PAWN);
+    board.at(0).at(0) = B_ROOK;
+    board.at(0).at(8-1) = B_ROOK;
+
+    board.at(0).at(1) = B_KNIGHT;
+    board.at(0).at(8-2) = B_KNIGHT;
+
+    board.at(0).at(2) = B_BISHOP;
+    board.at(0).at(8-3) = B_BISHOP;
+
+    board.at(0).at(3) = B_KING;
+    board.at(0).at(8-4) = B_QUEEN;
+
+    // Draw white side
+    fill(board.at(board.size()-2).begin(),board.at(board.size()-2).end(),W_PAWN);
+    board.at(7).at(0) = W_ROOK;
+    board.at(7).at(8-1) = W_ROOK;
+
+    board.at(7).at(1) = W_KNIGHT;
+    board.at(7).at(8-2) = W_KNIGHT;
+
+    board.at(7).at(2) = W_BISHOP;
+    board.at(7).at(8-3) = W_BISHOP;
+
+    board.at(7).at(3) = W_QUEEN;
+    board.at(7).at(8-4) = W_KING;
     // TRIN 0 - ØVELSE SLUTTER HER
 
     // Initialize window and chess board
@@ -28,7 +55,6 @@ int main()
     win.end();
     win.show();
 
-    std::cout<<"UYeet";
     return(Fl::run());
 }
 
