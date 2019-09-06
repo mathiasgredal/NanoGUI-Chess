@@ -2,7 +2,7 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Double_Window.H>
-#include "chess_GUI.h"
+#include "chess_gui.h"
 #include <iostream>
 
 chess_GUI::chess_GUI(int W, std::vector<std::vector<int> > startposition) : Fl_Widget(0,0,W,W,0), board_size(W), s_size(W/10)

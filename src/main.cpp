@@ -2,7 +2,7 @@
 #include <time.h>
 #include <vector>
 #include <iostream>
-#include "chess_GUI.h"
+#include "chess_gui.h"
 using namespace std;
 
 // Random int generator
