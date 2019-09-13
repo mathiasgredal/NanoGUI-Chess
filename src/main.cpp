@@ -21,6 +21,7 @@ int main()
     // TRIN 0 - ØVELSE STARTER HER
     vector<vector<int>> board(8, vector<int>(8, 0));
     // Draw black side
+    fill(board.at(board.size() - 7).begin(), board.at(board.size() - 7).end(), B_PAWN);
     board.at(0).at(0) = B_ROOK;
     board.at(0).at(8 - 1) = B_ROOK;
 
@@ -30,8 +31,8 @@ int main()
     board.at(0).at(2) = B_BISHOP;
     board.at(0).at(8 - 3) = B_BISHOP;
 
-    board.at(0).at(3) = B_KING;
-    board.at(0).at(8 - 4) = B_QUEEN;
+    board.at(0).at(3) = B_QUEEN;
+    board.at(0).at(8 - 4) = B_KING;
 
     // Draw white side
     fill(board.at(board.size() - 2).begin(), board.at(board.size() - 2).end(), W_PAWN);
