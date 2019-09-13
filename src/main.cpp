@@ -89,6 +89,37 @@ float eval_pos(vector<vector<int>> board)
             case B_PAWN:
                 sum--;
                 break;
+            case W_KNIGHT:
+                sum+=3;
+                break;
+            case B_KNIGHT:
+                sum-=3;
+                break;
+            case W_BISHOP:
+                sum+=3;
+                break;
+            case B_BISHOP:
+                sum-=3;
+                break;
+            case W_ROOK:
+                sum+=5;
+                break;
+            case B_ROOK:
+                sum-=5;
+                break;
+            case W_QUEEN:
+                sum+=9;
+                break;
+            case B_QUEEN:
+                sum-=9;
+                break;
+            case W_KING:
+                sum+=150;
+                break;
+            case B_KING:
+                sum-=150;
+                break;
+
             }
         }
     }
