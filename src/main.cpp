@@ -12,52 +12,7 @@ int randi(int low, int high)
     return rand() * float(high - low) / RAND_MAX + low;
 }
 
-int main()
-{
-    int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
-    srand(time(NULL));      // Initialize random generator
-    rand();
 
-    // TRIN 0 - ØVELSE STARTER HER
-    vector<vector<int>> board(8, vector<int>(8, 0));
-    // Draw black side
-    fill(board.at(board.size() - 7).begin(), board.at(board.size() - 7).end(), B_PAWN);
-    board.at(0).at(0) = B_ROOK;
-    board.at(0).at(8 - 1) = B_ROOK;
-
-    board.at(0).at(1) = B_KNIGHT;
-    board.at(0).at(8 - 2) = B_KNIGHT;
-
-    board.at(0).at(2) = B_BISHOP;
-    board.at(0).at(8 - 3) = B_BISHOP;
-
-    board.at(0).at(3) = B_QUEEN;
-    board.at(0).at(8 - 4) = B_KING;
-
-    // Draw white side
-    fill(board.at(board.size() - 2).begin(), board.at(board.size() - 2).end(), W_PAWN);
-    board.at(7).at(0) = W_ROOK;
-    board.at(7).at(8 - 1) = W_ROOK;
-
-    board.at(7).at(1) = W_KNIGHT;
-    board.at(7).at(8 - 2) = W_KNIGHT;
-
-    board.at(7).at(2) = W_BISHOP;
-    board.at(7).at(8 - 3) = W_BISHOP;
-
-    board.at(7).at(3) = W_QUEEN;
-    board.at(7).at(8 - 4) = W_KING;
-    // TRIN 0 - ØVELSE SLUTTER HER
-
-    // Initialize window and chess board
-    Fl_Double_Window win(win_size, win_size, "Chess");
-    win.color(WIN_COLOR);
-    chess_GUI chess_board(win_size, board);
-    win.end();
-    win.show();
-
-    return (Fl::run());
-}
 
 void print_move(vector<int> mv)
 {
@@ -195,5 +150,54 @@ vector<int> calc_com_move(vector<vector<int>> board)
     mv.push_back(randi(0, 8));              // Choose random end location
     mv.push_back(randi(0, 8));
     return mv;
+}
+
+int main()
+{
+    int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
+    srand(time(NULL));      // Initialize random generator
+    rand();
+
+    // TRIN 0 - ØVELSE STARTER HER
+    vector<vector<int>> board(8, vector<int>(8, 0));
+    // Draw black side
+    fill(board.at(board.size() - 7).begin(), board.at(board.size() - 7).end(), B_PAWN);
+    board.at(0).at(0) = B_ROOK;
+    board.at(0).at(8 - 1) = B_ROOK;
+
+    board.at(0).at(1) = B_KNIGHT;
+    board.at(0).at(8 - 2) = B_KNIGHT;
+
+    board.at(0).at(2) = B_BISHOP;
+    board.at(0).at(8 - 3) = B_BISHOP;
+
+    board.at(0).at(3) = B_QUEEN;
+    board.at(0).at(8 - 4) = B_KING;
+
+    // Draw white side
+    fill(board.at(board.size() - 2).begin(), board.at(board.size() - 2).end(), W_PAWN);
+    board.at(7).at(0) = W_ROOK;
+    board.at(7).at(8 - 1) = W_ROOK;
+
+    board.at(7).at(1) = W_KNIGHT;
+    board.at(7).at(8 - 2) = W_KNIGHT;
+
+    board.at(7).at(2) = W_BISHOP;
+    board.at(7).at(8 - 3) = W_BISHOP;
+
+    board.at(7).at(3) = W_QUEEN;
+    board.at(7).at(8 - 4) = W_KING;
+    // TRIN 0 - ØVELSE SLUTTER HER
+
+    // Initialize window and chess board
+    Fl_Double_Window win(win_size, win_size, "Chess");
+    win.color(WIN_COLOR);
+    chess_GUI chess_board(win_size, board);
+    win.end();
+    win.show();
+    eval_pos(board);
+
+    return (Fl::run());
+
 }
 // COM MOVE - SLUT
