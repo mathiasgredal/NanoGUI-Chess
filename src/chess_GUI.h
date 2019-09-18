@@ -7,19 +7,19 @@
 #include "FL/Fl_Double_Window.H"
 
 // Chess pieces
-const int W_KING = 1;
-const int W_QUEEN = 2;
-const int W_ROOK = 3;
+const int W_KING = 150;
+const int W_QUEEN = 9;
+const int W_ROOK = 5;
 const int W_BISHOP = 4;
-const int W_KNIGHT = 5;
-const int W_PAWN = 6;
+const int W_KNIGHT = 3;
+const int W_PAWN = 1;
 const int EMPTY = 0;
-const int B_KING = -1;
-const int B_QUEEN = -2;
-const int B_ROOK = -3;
+const int B_KING = -150;
+const int B_QUEEN = -9;
+const int B_ROOK = -5;
 const int B_BISHOP = -4;
-const int B_KNIGHT = -5;
-const int B_PAWN = -6;
+const int B_KNIGHT = -3;
+const int B_PAWN = -1;
 
 // Black pieces are negative and white are positive
 const int BLACK = -1;

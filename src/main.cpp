@@ -81,46 +81,7 @@ float eval_pos(vector<vector<int>> board)
     {
         for (int c = 0; c < board[r].size(); c++)
         {
-            switch (board[r][c])
-            {
-            case W_PAWN:
-                sum++;
-                break;
-            case B_PAWN:
-                sum--;
-                break;
-            case W_KNIGHT:
-                sum+=3;
-                break;
-            case B_KNIGHT:
-                sum-=3;
-                break;
-            case W_BISHOP:
-                sum+=3;
-                break;
-            case B_BISHOP:
-                sum-=3;
-                break;
-            case W_ROOK:
-                sum+=5;
-                break;
-            case B_ROOK:
-                sum-=5;
-                break;
-            case W_QUEEN:
-                sum+=9;
-                break;
-            case B_QUEEN:
-                sum-=9;
-                break;
-            case W_KING:
-                sum+=150;
-                break;
-            case B_KING:
-                sum-=150;
-                break;
-
-            }
+            sum += board[r][c];
         }
     }
     cout << "Board Evaluation: " << sum << endl;
@@ -167,7 +128,7 @@ vector<int> calc_com_move(vector<vector<int>> board)
 
     float score = eval_pos(board); // Evaluate current position
 
-    current_pieces = find_pieces(board, COM * W_ROOK); // Find computer rooks
+    current_pieces = find_pieces(board, B_ROOK); // Find computer rooks
     COM_list.insert(COM_list.end(), current_pieces.begin(), current_pieces.end());
 
     int n = COM_list.size();

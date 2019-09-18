@@ -123,31 +123,31 @@ const char *chess_GUI::int_to_unicode(int i)
 {
     switch (i)
     {
-    case 1:
+    case W_KING:
         return u8"\u2654";
-    case 2:
+    case W_QUEEN:
         return u8"\u2655";
-    case 3:
+    case W_ROOK:
         return u8"\u2656";
-    case 4:
+    case W_BISHOP:
         return u8"\u2657";
-    case 5:
+    case W_KNIGHT:
         return u8"\u2658";
-    case 6:
+    case W_PAWN:
         return u8"\u2659";
     default:
         return " ";
-    case -1:
+    case B_KING:
         return u8"\u265A";
-    case -2:
+    case B_QUEEN:
         return u8"\u265B";
-    case -3:
+    case B_ROOK:
         return u8"\u265C";
-    case -4:
+    case B_BISHOP:
         return u8"\u265D";
-    case -5:
+    case B_KNIGHT:
         return u8"\u265E";
-    case -6:
+    case B_PAWN:
         return u8"\u265F";
     }
 }
