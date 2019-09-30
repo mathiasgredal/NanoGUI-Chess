@@ -32,9 +32,34 @@ const char COM = BLACK;
 // Color of the window background (around the board)
 const int WIN_COLOR = FL_LIGHT2;
 
+using namespace std;
+
+class Move
+{
+public:
+    // Initialisering
+    int r1, c1, r2, c2;
+
+    // Constructor
+    Move(int row1,int col1, int row2, int col2)
+    {
+        r1 = row1;
+        c1 = col1;
+        r2 = row2;
+        c2 = col2;
+    };
+
+    // Metode til at konvertere til vektor
+    vector<int> to_vector()
+    {
+        return vector<int>({r1,c1,r2,c2});
+    }
+};
+
 // Function headers for main.cpp file
 void print_move(std::vector<int> mv);
 std::vector<int> calc_com_move(std::vector<std::vector<int>> board);
+bool valid_ROCK_move(Move mv, vector<vector<int>>board);
 
 // Chess board widget
 class chess_GUI : public Fl_Widget

@@ -6,27 +6,6 @@
 #include "chess_GUI.h"
 using namespace std;
 
-class Move
-{
-public:
-    // Initialisering
-    int r1, c1, r2, c2;
-
-    // Constructor
-    Move(int row1,int col1, int row2, int col2)
-    {
-        r1 = row1;
-        c1 = col1;
-        r2 = row2;
-        c2 = col2;
-    };
-
-    // Metode til at konvertere til vektor
-    vector<int> to_vector()
-    {
-        return vector<int>({r1,c1,r2,c2});
-    }
-};
 
 // Random int generator
 int randi(int low, int high)
@@ -208,7 +187,8 @@ bool valid_ROCK_move(Move mv, vector<vector<int>>board)
     if(mv.r1 == mv.r2)
     {
         //We have a poshorizontal move
-        for(int x = mv.r1; x <= mv.r2; x++)
+
+        for(int x = mv.c1; x <= mv.c2; x++)
         {
             if(board[x][mv.c1] != 0)
             {
@@ -236,7 +216,7 @@ int main()
     vector<vector<int>> board(8, vector<int>(8, 0));
 
     board = AddPiecesToBoard(board);
-    cout << valid_rook_move(Move(0,0,0,2));
+    cout << valid_rook_move(Move(0,3,0,2), board);
 
     // Initialize window and chess board
     Fl_Double_Window win(win_size, win_size, "Chess");
