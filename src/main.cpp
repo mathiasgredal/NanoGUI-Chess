@@ -207,19 +207,62 @@ bool valid_ROCK_move(Move mv, vector<vector<int>>board)
     bool collision = false;
     if(mv.r1 == mv.r2)
     {
-        //We have a poshorizontal move
-        for(int x = mv.r1; x <= mv.r2; x++)
+        if(mv.c2>mv.c1)
         {
-            if(board[x][mv.c1] != 0)
+            cout << "poshori\n";
+            //We have a poshorizontal move
+            for(int x = mv.c1; x <= mv.c2; x++)
             {
-                collision = true;
+                if(board[mv.r1][x] != 0)
+                {
+                    collision = true;
+                    return !collision;
+                }
+            }
+        }
+        if(mv.c2<mv.c1)
+        {
+            cout << "neghori\n";
+            //We have a neghorizontal move
+            for(int x = mv.c1; x <= mv.c2; x--)
+            {
+                if(board[mv.r1][x] != 0)
+                {
+                    collision = true;
+                    return !collision;
+                }
             }
         }
 
     }
     if(mv.c1 == mv.c2)
     {
-        //We have a vertical move
+        if(mv.r2>mv.r1)
+        {
+            cout << "posveri\n";
+            //We have a posvertical move
+            for(int y = mv.r1; y <= mv.r2; y++)
+            {
+                if(board[y][mv.c1] != 0)
+                {
+                    collision = true;
+                    return !collision;
+                }
+            }
+        }
+        if(mv.r2<mv.r1)
+        {
+            cout << "negveri\n";
+            //We have a negvertical move
+            for(int y = mv.r1; y <= mv.r2; y--)
+            {
+                if(board[y][mv.c1] != 0)
+                {
+                    collision = true;
+                    return !collision;
+                }
+            }
+        }
 
     }
     return(mv.r1 == mv.r2 || mv.c1 == mv.c2);
@@ -236,7 +279,7 @@ int main()
     vector<vector<int>> board(8, vector<int>(8, 0));
 
     board = AddPiecesToBoard(board);
-    cout << valid_rook_move(Move(0,0,0,2));
+    cout << valid_ROCK_move(Move(3,0,5,0),board);
 
     // Initialize window and chess board
     Fl_Double_Window win(win_size, win_size, "Chess");
