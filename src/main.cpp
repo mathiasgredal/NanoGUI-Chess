@@ -6,6 +6,28 @@
 #include "chess_GUI.h"
 using namespace std;
 
+class Move
+{
+public:
+    // Initialisering
+    int r1, c1, r2, c2;
+
+    // Constructor
+    Move(int row1,int col1, int row2, int col2)
+    {
+        r1 = row1;
+        c1 = col1;
+        r2 = row2;
+        c2 = col2;
+    };
+
+    // Metode til at konvertere til vektor
+    vector<int> to_vector()
+    {
+        return vector<int>({r1,c1,r2,c2});
+    }
+};
+
 // Random int generator
 int randi(int low, int high)
 {
@@ -144,14 +166,9 @@ vector<int> calc_com_move(vector<vector<int>> board)
     return mv;
 }
 
-int main()
+vector<vector<int>> AddPiecesToBoard(vector<vector<int>>board)
 {
-    int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
-    srand(time(NULL));      // Initialize random generator
-    rand();
 
-    // TRIN 0 - ØVELSE STARTER HER
-    vector<vector<int>> board(8, vector<int>(8, 0));
     // Draw black side
     fill(board.at(board.size() - 7).begin(), board.at(board.size() - 7).end(), B_PAWN);
     board.at(0).at(0) = B_ROOK;
@@ -180,6 +197,46 @@ int main()
     board.at(7).at(3) = W_QUEEN;
     board.at(7).at(8 - 4) = W_KING;
     // TRIN 0 - ØVELSE SLUTTER HER
+
+    return board;
+
+}
+
+bool valid_ROCK_move(Move mv, vector<vector<int>>board)
+{
+    bool collision = false;
+    if(mv.r1 == mv.r2)
+    {
+        //We have a poshorizontal move
+        for(int x = mv.r1; x <= mv.r2; x++)
+        {
+            if(board[x][mv.c1] != 0)
+            {
+                collision = true;
+            }
+        }
+
+    }
+    if(mv.c1 == mv.c2)
+    {
+        //We have a vertical move
+
+    }
+    return(mv.r1 == mv.r2 || mv.c1 == mv.c2);
+
+}
+
+int main()
+{
+    int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
+    srand(time(NULL));      // Initialize random generator
+    rand();
+
+    // TRIN 0 - ØVELSE STARTER HER
+    vector<vector<int>> board(8, vector<int>(8, 0));
+
+    board = AddPiecesToBoard(board);
+    cout << valid_ROCK_move(Move(0,0,0,2));
 
     // Initialize window and chess board
     Fl_Double_Window win(win_size, win_size, "Chess");
