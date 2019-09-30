@@ -15,7 +15,7 @@ if (APPLE)
     link_directories(${CMAKE_SOURCE_DIR}/macos)
 endif (APPLE)
 
-add_executable(chess main.cpp chess_GUI.cpp chess_GUI.h)
+add_executable(chess main.cpp chess_GUI.cpp chess_GUI.h chess_piece.cpp chess_piece.h)
 
 if (WIN32)
     target_link_libraries(chess ole32 uuid comctl32 wsock32 m gdi32 user32 kernel32)

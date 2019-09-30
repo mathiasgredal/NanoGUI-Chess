@@ -49,6 +49,9 @@
                 <Unit filename="chess_GUI.cpp" />
                 <Unit filename="chess_GUI.h" />
                 <Unit filename="main.cpp" />
+                <Unit filename="chess_piece.cpp" />
+                <Unit filename="chess_piece.h" />
+
                 <Extensions>
                         <code_completion />
                         <envvars />

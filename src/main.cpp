@@ -236,7 +236,7 @@ int main()
     vector<vector<int>> board(8, vector<int>(8, 0));
 
     board = AddPiecesToBoard(board);
-    cout << valid_ROCK_move(Move(0,0,0,2));
+    cout << valid_rook_move(Move(0,0,0,2));
 
     // Initialize window and chess board
     Fl_Double_Window win(win_size, win_size, "Chess");
