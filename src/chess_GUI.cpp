@@ -93,9 +93,18 @@ int chess_GUI::handle(int event)
             }
             else
             {
+
                 click2 = click;
                 std::vector<int> tmp = click1;
                 tmp.insert(tmp.end(), click2.begin(), click2.end());
+                // tmp is our move, validate it
+
+                bool validmove = true;
+
+                if(board[tmp[1]][tmp[0]]==W_ROOK*PLAYER){
+                    validmove=valid_ROCK_move(Move(tmp[1],tmp[0],tmp[3],tmp[2]), board);
+                }
+
                 update_piece(tmp); // Player move
                 click1 = {-1, -1};
                 click2 = {-1, -1};
@@ -104,6 +113,7 @@ int chess_GUI::handle(int event)
                 update_piece(tmp); // Computer move
                 print_move(tmp);   // Print to terminal
                 redraw();
+
             }
         }
         return 1;
