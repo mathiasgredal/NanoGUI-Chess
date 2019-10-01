@@ -4,7 +4,6 @@ project (CMAKETEST)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-
 if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mms-bitfields -DWIN32 -std=c++14 -g")
     link_directories(${CMAKE_SOURCE_DIR}/win32)

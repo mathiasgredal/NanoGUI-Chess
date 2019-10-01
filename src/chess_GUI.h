@@ -13,7 +13,7 @@ const char PLAYER = Chess_Color::White;
 const char COM = Chess_Color::Black;
 
 // Color of the window background (around the board)
-const int WIN_COLOR = FL_LIGHT2;
+const int WIN_COLOR = 0x23272A00;
 
 using namespace std;
 

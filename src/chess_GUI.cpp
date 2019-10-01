@@ -28,8 +28,22 @@ void chess_GUI::draw()
     // After first click, mark it in upper left corner
     if (click1[0] >= 0)
     {
-        // TODO: Add suggestions for where it is possible to move
         fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, FL_GREEN);
+
+        vector<Move> possibleMoves = board->Get_Piece(click1[0], click1[1])->ValidMoves(*board);
+
+        for(auto& possibleMove: possibleMoves){
+            fl_color(FL_RED);
+
+            float r = board->s_size*0.3;
+
+            float x = board->s_size * (possibleMove.c2 + 1)+board->s_size*0.5-r*0.5;
+            float y = board->s_size * (possibleMove.r2 + 1)+board->s_size*0.5-r*0.5;
+
+
+            fl_pie(x, y, r, r, -180,180);
+        }
+
         return;
     }
     else
@@ -38,7 +52,7 @@ void chess_GUI::draw()
     }
 
     // Draw numbers and letters outside board
-    fl_color(FL_BLACK);
+    fl_color(fl_darker(FL_WHITE));
     fl_font(FL_HELVETICA, board->s_size * 0.75);
     char row[2] = {'8', '\0'};
     char col[2] = {'A', '\0'};
@@ -60,11 +74,11 @@ void chess_GUI::draw()
         {
             if (white)
             {
-                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size, FL_WHITE);
+                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size,fl_darker(FL_WHITE));
             }
             else
             {
-                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size, FL_GRAY);
+                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size, fl_darker(FL_DARK1));
             }
             white = !white;
         }
@@ -101,7 +115,8 @@ int chess_GUI::handle(int event)
             {
                 click2 = click;
                 Move tmp = Move(click1[0], click1[1], click2[0], click2[1]);
-                bool validmove = true;
+                bool validmove = board->Get_Piece(click1[0],click1[1])->ValidMove(tmp, *board);
+
                 /*
                 if(board->Get_Piece(tmp.r1, tmp.c1)->chess_type == Chess_Type::Rook
                         && board->Get_Piece(tmp[0],tmp[1])->color == PLAYER){
@@ -111,15 +126,16 @@ int chess_GUI::handle(int event)
                 if(validmove){
                     cout << "Valid move\n";
                     board->Move_Piece(tmp);
-                    click1 = {-1, -1};
-                    click2 = {-1, -1};
-                    redraw();
+
                     //update_piece(tmp); // Computer move
                     redraw();
                 }
                 else{
                     cout << "Invalid move\n";
                 }
+                click1 = {-1, -1};
+                click2 = {-1, -1};
+                redraw();
 
             }
         }

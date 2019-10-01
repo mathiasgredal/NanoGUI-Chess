@@ -2,6 +2,7 @@
 #define CHESS_PIECES_H
 
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -21,6 +22,15 @@ public:
 
     // Metode til at konvertere til vektor
     vector<int> to_vector();
+
+    void Print_Move();
+
+    bool operator == (Move mv){
+        if(r1 == mv.r1 && r2 == mv.r2 && c1 == mv.c1 && c2 == mv.c2)
+            return true;
+        else
+            return false;
+    }
 };
 
 
@@ -31,10 +41,9 @@ class Chess_Piece
         Chess_Color color;
         const char* iconLetter;
         int piece_Value;
-        int row;
-        int col;
 
-        virtual vector<Move> validMoves(Board &board) = 0;
+        bool ValidMove(Move mv, Board &board);
+        virtual vector<Move> ValidMoves(Board &board) = 0;
 
         virtual ~Chess_Piece();
 };
@@ -53,6 +62,7 @@ public:
     void Add_Piece_To_Board(Chess_Piece* piece, int row, int col);
     Chess_Piece* Get_Piece(int row, int col);
     void Move_Piece(Move mv);
+    void GetLocation(Chess_Piece* piece, int& row, int& col);
 
     int board_size;
     int s_size;
@@ -72,13 +82,16 @@ class Rook : public Chess_Piece
             iconLetter = "♜";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
-        return {Move(0,0,5,5)};
+        int row, col;
+        board.GetLocation(this, row, col);
+
+
+
+        return {Move(row,col,row+1,col)};
     }
 };
 
@@ -96,11 +109,9 @@ class King : public Chess_Piece
             iconLetter = "♚";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
         /*
          *    bool collision = false;
@@ -185,11 +196,9 @@ class Queen : public Chess_Piece
             iconLetter = "♛";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
         return {Move(0,0,5,5)};
     }
@@ -209,11 +218,9 @@ class Bishop : public Chess_Piece
             iconLetter = "♝";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
         return {Move(0,0,5,5)};
     }
@@ -233,11 +240,9 @@ class Knight : public Chess_Piece
             iconLetter = "♞";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
         return {Move(0,0,5,5)};
     }
@@ -257,13 +262,17 @@ class Pawn : public Chess_Piece
             iconLetter = "♟";
 
         color = _color;
-        row=_row;
-        col=_col;
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
-        return {Move(0,0,5,5)};
+        int row, col;
+        board.GetLocation(this, row, col);
+
+        if(color==Chess_Color::White)
+            return {Move(row,col,row-1,col)};
+        else
+            return {Move(row,col,row+1,col)};
     }
 };
 
@@ -277,7 +286,7 @@ class Empty : public Chess_Piece
         iconLetter = " ";
     }
 
-    virtual vector<Move> validMoves(Board &board)
+    virtual vector<Move> ValidMoves(Board &board)
     {
         return {};
     }
