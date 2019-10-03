@@ -1,6 +1,5 @@
-#include <iostream>
-#include <vector>
 #include "chess_pieces.h"
+
 
 using namespace std;
 
@@ -36,6 +35,7 @@ vector<vector<Chess_Piece*>> Board::Default_Board()
     default_pieces[7][5] = new class Bishop(2,2,Chess_Color::White);
     default_pieces[7][6] = new class Knight(2,2,Chess_Color::White);
     default_pieces[7][7] = new class Rook(2,2,Chess_Color::White);
+
 
     for(auto &piece : default_pieces[6])
         piece = new class Pawn(2,2,Chess_Color::White);

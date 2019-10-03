@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (CMAKETEST)
+project (Skak)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
@@ -14,7 +14,7 @@ if (APPLE)
     link_directories(${CMAKE_SOURCE_DIR}/macos)
 endif (APPLE)
 
-add_executable(chess main.cpp chess_GUI.cpp chess_GUI.h Chess_Pieces/chess_pieces.cpp Chess_Pieces/chess_pieces.h)
+add_executable(chess main.cpp chess_GUI.cpp chess_GUI.h chess_pieces.cpp chess_pieces.h)
 
 if (WIN32)
     target_link_libraries(chess ole32 uuid comctl32 wsock32 m gdi32 user32 kernel32)
@@ -27,3 +27,5 @@ endif()
 
 
 target_link_libraries(chess fltk)
+
+

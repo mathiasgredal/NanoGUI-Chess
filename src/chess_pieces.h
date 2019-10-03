@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -89,9 +90,41 @@ class Rook : public Chess_Piece
         int row, col;
         board.GetLocation(this, row, col);
 
+        vector<Move> possibleMoves = {};
 
+        // Positive horisontal move
+        for(int x = col+1; x < 8; x++)
+        {
+            possibleMoves.push_back(Move(row, col, row, x));
+            if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
+                break;
+        }
 
-        return {Move(row,col,row+1,col)};
+        // Negative horisontal move
+        for(int x = col-1; x >= 0; x--)
+        {
+            possibleMoves.push_back(Move(row, col, row, x));
+            if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
+                break;
+        }
+
+        // Positive vertical move
+        for(int x = row+1; x < 8; x++)
+        {
+            possibleMoves.push_back(Move(row, col, x, col));
+            if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
+                break;
+        }
+
+        // Negative vertical move
+        for(int x = row-1; x >= 0; x--)
+        {
+            possibleMoves.push_back(Move(row, col, x, col));
+            if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
+                break;
+        }
+
+        return possibleMoves;
     }
 };
 
@@ -113,71 +146,7 @@ class King : public Chess_Piece
 
     virtual vector<Move> ValidMoves(Board &board)
     {
-        /*
-         *    bool collision = false;
-            if(mv.r1 == mv.r2)
-            {
 
-                if(mv.c2>mv.c1)
-                {
-                    cout << "poshori\n";
-                    //We have a poshorizontal move
-                    for(int x = mv.c1; x <= mv.c2; x++)
-                    {
-                        if(board[mv.r1][x] != 0)
-                        {
-                            collision = true;
-                            return !collision;
-                        }
-                    }
-                }
-                if(mv.c2<mv.c1)
-                {
-                    cout << "neghori\n";
-                    //We have a neghorizontal move
-                    for(int x = mv.c1; x <= mv.c2; x--)
-                    {
-                        if(board[mv.r1][x] != 0)
-                        {
-                            collision = true;
-                            return !collision;
-                        }
-                    }
-                }
-
-            }
-            if(mv.c1 == mv.c2)
-            {
-                if(mv.r2>mv.r1)
-                {
-                    cout << "posveri\n";
-                    //We have a posvertical move
-                    for(int y = mv.r1; y <= mv.r2; y++)
-                    {
-                        if(board[y][mv.c1] != 0)
-                        {
-                            collision = true;
-                            return !collision;
-                        }
-                    }
-                }
-                if(mv.r2<mv.r1)
-                {
-                    cout << "negveri\n";
-                    //We have a negvertical move
-                    for(int y = mv.r1; y <= mv.r2; y--)
-                    {
-                        if(board[y][mv.c1] != 0)
-                        {
-                            collision = true;
-                            return !collision;
-                        }
-                    }
-                }
-
-            }
-            return(mv.r1 == mv.r2 || mv.c1 == mv.c2);
-        */
         return {Move(0,0,5,5)};
     }
 };
@@ -244,6 +213,7 @@ class Knight : public Chess_Piece
 
     virtual vector<Move> ValidMoves(Board &board)
     {
+
         return {Move(0,0,5,5)};
     }
 };
@@ -269,11 +239,24 @@ class Pawn : public Chess_Piece
         int row, col;
         board.GetLocation(this, row, col);
 
-        if(color==Chess_Color::White)
-            return {Move(row,col,row-1,col)};
-        else
-            return {Move(row,col,row+1,col)};
+        vector<Move> possibleMoves = {};
+
+        int dir = (color==Chess_Color::White)? -1: 1;
+
+
+        possibleMoves.push_back(Move(row,col,row+dir,col));
+
+        if(initialMove){
+            initialMove = false;
+            possibleMoves.push_back(Move(row,col,row+2*dir,col));
+        }
+
+        return possibleMoves;
+
     }
+
+private:
+    bool initialMove = true;
 };
 
 class Empty : public Chess_Piece

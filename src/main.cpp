@@ -4,8 +4,7 @@
 #include <vector>
 #include <iostream>
 
-#include "Chess_Pieces/chess_pieces.h"
-
+#include "chess_pieces.h"
 #include "chess_GUI.h"
 
 
@@ -26,12 +25,9 @@ void AddPiecesToBoard(Board &board)
 
 int main()
 {
-    cout << "yeeha\n";
-
     int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
     srand(time(NULL));      // Initialize random generator
     rand();
-
 
 
     Board board(Board::Default_Board());
