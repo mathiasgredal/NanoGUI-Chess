@@ -1,7 +1,82 @@
 #include "chess_gui.h"
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <algorithm>
+#include <string>
 
-chess_GUI::chess_GUI(int W, Board& startposition) : Fl_Widget(0, 0, W, W, 0)
+std::vector<unsigned char> readFile(const char* filename)
 {
+    // open the file:
+    std::ifstream file(filename, std::ios::binary);
+
+    // Stop eating new lines in binary mode!!!
+    file.unsetf(std::ios::skipws);
+
+    // get its size:
+    std::streampos fileSize;
+
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // reserve capacity
+    std::vector<unsigned char> vec;
+    vec.reserve(fileSize);
+
+    // read the data:
+    vec.insert(vec.begin(),
+               std::istream_iterator<unsigned char>(file),
+               std::istream_iterator<unsigned char>());
+
+    return vec;
+}
+
+
+
+
+chess_GUI::chess_GUI(int W, Board& startposition) : nanogui::Screen(Eigen::Vector2i(W, W), "Skak", false)
+{
+    setBackground(WIN_COLOR);
+
+    auto fontdata = readFile("./Assets/Fonts/FreeSerif.ttf");
+    //unsigned char* fontdatapointer = fontdata.data();
+    //int fontsize = fontdata.size();
+    chessPieceFontFace = nvgCreateFontMem(nvgContext(), "chess", fontdata.data(), fontdata.size(), 0);
+
+    cout << chessPieceFontFace << endl;
+
+    /*
+    Theme* newTheme = new Theme(nvgContext());
+
+    newTheme->mWindowHeaderGradientTop = Color(0x23,0x27,0x2A,255);
+    newTheme->mWindowHeaderGradientBot = newTheme->mWindowHeaderGradientTop;
+
+    newTheme->mWindowTitleFocused = Color(255,255,255,255);
+    newTheme->mWindowTitleUnfocused = Color(255,255,255,255);
+
+    newTheme->mWindowCornerRadius = 0;
+    newTheme->mWindowDropShadowSize = 3;
+
+    setTheme(newTheme);
+    */
+
+
+    /// dvar, bar, strvar, etc. are double/bool/string/.. variables
+
+    FormHelper *gui = new FormHelper(this);
+    pausedWindow  = gui->addWindow(Eigen::Vector2i(10, 10), "Paused");
+
+    gui->addButton("Continue", [this](){ ui_state = UI_STATE::IN_GAME; });
+    gui->addButton("Quit to Main Menu", [this](){ ui_state = UI_STATE::MAIN_MENU; pausedWindow->setVisible(false); });
+    gui->addButton("Quit", [this](){ exit(1); });
+
+    pausedWindow->center();
+    pausedWindow->setFocused(true);
+    pausedWindow->performLayout(nvgContext());
+
+    pausedWindow->setVisible(false);
+
     board = &startposition;
     board->board_size = W;
     board->s_size = W/10;
@@ -17,21 +92,24 @@ chess_GUI::chess_GUI(int W, Board& startposition) : Fl_Widget(0, 0, W, W, 0)
 }
 
 
-void chess_GUI::DrawBoard()
+void chess_GUI::DrawBoard(NVGcontext *ctx)
 {
-    fl_rectf(0,0,board->board_size,board->board_size, WIN_COLOR);
-
     // Draw numbers and letters outside board
-    fl_color(fl_darker(FL_WHITE));
-    fl_font(FL_HELVETICA, board->s_size * 0.75);
+    nvgBeginPath(nvgContext());
+    nvgFontSize(nvgContext(), board->s_size);
+    nvgFontFace(nvgContext(), "sans");
+    nvgFillColor(nvgContext(), nvgRGBA(200, 200, 200, 255)); // Text color
+    nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
     char row[2] = {'8', '\0'};
     char col[2] = {'A', '\0'};
     for (int r = 1; r < 9; r++)
     {
-        fl_draw(row, 0, board->s_size * r, board->s_size, board->s_size, FL_ALIGN_CENTER);
-        fl_draw(row, board->board_size - board->s_size, board->s_size * r, board->s_size, board->s_size, FL_ALIGN_CENTER);
-        fl_draw(col, board->s_size * r, 0, board->s_size, board->s_size, FL_ALIGN_CENTER);
-        fl_draw(col, board->s_size * r, board->board_size - board->s_size, board->s_size, board->s_size, FL_ALIGN_CENTER);
+        nvgText(nvgContext(), board->s_size/2, board->s_size * r+board->s_size/2, row, nullptr);
+        nvgText(nvgContext(), board->board_size - board->s_size/2 , board->s_size * r + board->s_size/2, row, nullptr);
+        nvgText(nvgContext(), board->s_size * r + board->s_size/2, board->s_size/2, col, nullptr);
+        nvgText(nvgContext(), board->s_size * r + board->s_size/2, board->board_size-board->s_size/2, col, nullptr);
+
         row[0] = row[0] - 1;
         col[0] = col[0] + 1;
     }
@@ -44,11 +122,18 @@ void chess_GUI::DrawBoard()
         {
             if (white)
             {
-                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size,fl_darker(FL_WHITE));
+                nvgBeginPath(nvgContext());
+                nvgRect(nvgContext(), board->s_size * c, board->s_size * r, board->s_size, board->s_size);
+                nvgFillColor(nvgContext(), nvgRGBA(180, 180, 180, 255));
+                nvgFill(nvgContext());
             }
             else
             {
-                fl_rectf(board->s_size * c, board->s_size * r, board->s_size, board->s_size, fl_darker(FL_DARK1));
+                nvgBeginPath(nvgContext());
+                nvgRect(nvgContext(), board->s_size * c, board->s_size * r, board->s_size, board->s_size);
+                nvgFillColor(nvgContext(), nvgRGBA(120, 120, 120, 255));
+                nvgFill(nvgContext());
+
             }
             white = !white;
         }
@@ -56,40 +141,56 @@ void chess_GUI::DrawBoard()
     }
 
     // Draw pieces
-    fl_color(FL_BLACK);
+    nvgBeginPath(nvgContext());
+    nvgFontSize(nvgContext(), board->s_size);
+    nvgFontFace(nvgContext(), "chess");
+    nvgFillColor(nvgContext(), nvgRGBA(0, 0, 0, 255)); // Text color
+    nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
     for (int r = 0; r < 8; r++)
     {
         for (int c = 0; c < 8; c++)
         {
-            fl_draw(board->Get_Piece(r,c)->iconLetter, board->s_size * (c + 1), board->s_size * (r + 1), board->s_size, board->s_size, FL_ALIGN_CENTER);
+
+            nvgText(nvgContext(), board->s_size * (c + 1.5), board->s_size * (r + 1.5), board->Get_Piece(r,c)->iconLetter , nullptr);
         }
     }
 
     // After first click, mark it in upper left corner, and draw possible moves
     if (click1[0] >= 0)
     {
-        fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, FL_GREEN);
+        nvgBeginPath(nvgContext());
+        nvgRect(nvgContext(), board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5);
+        nvgFillColor(nvgContext(), Color(0,255,0,255)); // Text color
+        nvgFill(nvgContext());
+
+        //fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, FL_GREEN);
 
 
         vector<Move> possibleMoves = board->Get_Piece(click1[0], click1[1])->ValidMoves(*board);
 
 
         for(auto& possibleMove: possibleMoves){
-            fl_color(FL_RED);
-            possibleMove.Print_Move();
-            float r = board->s_size*0.3;
+            float r = board->s_size*0.16;
 
-            float x = board->s_size * (possibleMove.c2 + 1)+board->s_size*0.5-r*0.5;
-            float y = board->s_size * (possibleMove.r2 + 1)+board->s_size*0.5-r*0.5;
+            float x = board->s_size * (possibleMove.c2 + 1)+board->s_size*0.5;
+            float y = board->s_size * (possibleMove.r2 + 1)+board->s_size*0.5;
 
-
-            fl_pie(x, y, r, r, -180,180);
+            nvgBeginPath(nvgContext());
+            nvgCircle(nvgContext(), x, y, r);
+            nvgFillColor(nvgContext(), nvgRGBA(255, 0, 0, 255)); // Text color
+            nvgFill(nvgContext());
+            //possibleMove.Print_Move();
         }
 
     }
-    else
-        fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, WIN_COLOR);
-
+    else {
+        nvgBeginPath(nvgContext());
+        nvgRect(nvgContext(), board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5);
+        nvgFillColor(nvgContext(), WIN_COLOR); // Text color
+        nvgFill(nvgContext());
+        //fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, WIN_COLOR);
+    }
 }
 
 void chess_GUI::Add_Buttons(vector<string> buttonTexts)
@@ -105,75 +206,148 @@ void chess_GUI::Add_Buttons(vector<string> buttonTexts)
         int x = board->board_size/2-buttonWidth/2;
         int y = board->board_size/2-buttonHeight/2-(offset-totalButtonHeight/2);
 
-        fl_rectf(x, y, buttonWidth, buttonHeight, buttonColor);
+        nvgBeginPath(nvgContext());
+        nvgRect(nvgContext(), x, y, buttonWidth, buttonHeight);
+        nvgFillColor(nvgContext(), buttonColor);
+        nvgFill(nvgContext());
 
-        fl_color(FL_WHITE);
-        fl_font(FL_HELVETICA, 35);
-        fl_draw(buttonTexts.at(i).c_str(), board->board_size/2, y+buttonHeight/2, 0,0, FL_ALIGN_CENTER);
+        nvgBeginPath(nvgContext());
+        nvgFontSize(nvgContext(), 35.0f);
+        nvgFontFace(nvgContext(), "sans");
+        nvgFillColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
+        nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+        nvgText(nvgContext(), board->board_size/2, y+buttonHeight/2, buttonTexts.at(i).c_str(), NULL);
     }
 
 }
 
-void chess_GUI::DrawMainMenu()
+void chess_GUI::DrawMainMenu(NVGcontext *ctx)
 {
     // Draw Title
-    fl_color(FL_WHITE);
-    fl_font(FL_HELVETICA, 60);
-    fl_draw("Skak - Programmering", board->board_size/2,board->board_size/10, 0,0, FL_ALIGN_CENTER);
+    nvgBeginPath(ctx);
+    nvgFontSize(ctx, 60.0f);
+    nvgFontFace(ctx, "sans");
+    nvgFillColor(ctx, nvgRGBA(255, 255, 255, 255));
+    nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+    nvgText(ctx, board->board_size/2,board->board_size/10, "Skak - Programmering", NULL);
 
     // Add Buttons: Play, Settings, Credits, Quit
     Add_Buttons(menuButtons);
 
     // Add names
-    fl_color(FL_WHITE);
-    fl_font(FL_HELVETICA, 12);
-    fl_draw("Made By: Mathias Gredal, Niklas Haim, Peter - 2.X", board->board_size/2, board->board_size*0.97f, 0,0, FL_ALIGN_CENTER);
+    nvgBeginPath(ctx);
+    nvgFontSize(ctx, 14.0f);
+    nvgFontFace(ctx, "sans");
+    nvgFillColor(ctx, nvgRGBA(255, 255, 255, 255));
+    nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+    nvgText(ctx, board->board_size/2, board->board_size*0.97f, "Made By: Mathias Gredal, Niklas Haim, Peter - 2.X", NULL);
+
 }
 
-void chess_GUI::DrawSettings()
+void chess_GUI::DrawSettings(NVGcontext *ctx)
 {
+    /*
     fl_rectf(0,0,board->board_size,board->board_size, WIN_COLOR);
 
     fl_color(FL_WHITE);
 
     fl_draw("Yeet", board->board_size/2, board->board_size/10);
+    */
 }
 
-void chess_GUI::DrawCredits()
+void chess_GUI::DrawCredits(NVGcontext *ctx)
 {
 
 }
 
-// Draw on screen
-void chess_GUI::draw()
+bool chess_GUI::keyboardEvent(int key, int scancode, int action, int modifiers)
 {
+    if(key == GLFW_KEY_P && action == GLFW_PRESS)
+    {
+        if(ui_state != UI_STATE::PAUSED)
+            ui_state = UI_STATE::PAUSED;
+        else
+            ui_state = UI_STATE::IN_GAME;
+    }
+    cout << "you clicked " << key << endl;
+}
+
+bool chess_GUI::mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers)
+{
+    Screen::mouseButtonEvent(p, button, down, modifiers);
+
+    // After 2 clicks move the piece
+    if (down)
+    {
+        switch (ui_state)
+        {
+        case UI_STATE::MAIN_MENU:
+            HandleMainMenu(p);
+            break;
+        case UI_STATE::SETTINGS:
+            HandleSettings(p);
+            break;
+        case UI_STATE::IN_GAME:
+            if(button == GLFW_MOUSE_BUTTON_1 && down)
+                HandleInGame(p);
+            break;
+        case UI_STATE::PAUSED:
+            break;
+        case UI_STATE::GAMEOVER:
+            break;
+        }
+    }
+
+    return 0;
+}
+
+
+void chess_GUI::draw(NVGcontext *ctx)
+{
+
+
     switch (ui_state)
     {
     case UI_STATE::MAIN_MENU:
-        DrawMainMenu();
+        DrawMainMenu(ctx);
         break;
     case UI_STATE::SETTINGS:
-        DrawSettings();
+        DrawSettings(ctx);
         break;
     case UI_STATE::IN_GAME:
-        DrawBoard();
+        DrawBoard(ctx);
+        if(pausedWindow->visible())
+            pausedWindow->setVisible(false);
         break;
     case UI_STATE::PAUSED:
+        DrawBoard(ctx);
+        if(!pausedWindow->visible())
+            pausedWindow->setVisible(true);
+
         break;
     case UI_STATE::GAMEOVER:
         break;
     }
+
+    Screen::draw(ctx);
 }
 
-void chess_GUI::HandleInGame(int event)
+void chess_GUI::drawContents()
 {
-    std::vector<int> click = {Fl::event_y() / board->s_size - 1, Fl::event_x() / board->s_size - 1};
+
+}
+
+
+void chess_GUI::HandleInGame(const Vector2i &p)
+{
+    cout << "Left mouse click down" << endl;
+    std::vector<int> click = {p.y() / board->s_size - 1, p.x() / board->s_size - 1};
     if (click[0] >= 0 && click[0] < 8 && click[1] >= 0 && click[1] < 8)
     {
         if (click1[0] < 0 && board->Get_Piece(click[0],click[1])->chess_type != Chess_Type::EMPTY)
         {
             click1 = click;
-            redraw();
+            drawAll();
         }
         else
         {
@@ -188,21 +362,22 @@ void chess_GUI::HandleInGame(int event)
                 }*/
 
             if(validmove){
-                cout << "Valid move\n";
+                cout << "Valid move" << endl;
                 board->Move_Piece(tmp);
 
                 //update_piece(tmp); // Computer move
-                redraw();
+                drawAll();
             }
             else{
-                cout << "Invalid move\n";
+                cout << "Invalid move" << endl;
             }
             click1 = {-1, -1};
             click2 = {-1, -1};
-            redraw();
+            drawAll();
 
         }
     }
+
 }
 
 
@@ -219,9 +394,9 @@ bool Click_Within_Range(vector<int> range, vector<int> inputclick)
     return false;
 }
 
-void chess_GUI::HandleMainMenu(int event)
+void chess_GUI::HandleMainMenu(const Vector2i &p)
 {
-    std::vector<int> click = {Fl::event_x(), Fl::event_y()};
+    std::vector<int> click = {p.x(), p.y()};
 
     std::vector<vector<int>> buttonRanges = {};
 
@@ -246,11 +421,11 @@ void chess_GUI::HandleMainMenu(int event)
             {
             case 0: // Play
                 ui_state = UI_STATE::IN_GAME;
-                redraw();
+                drawAll();
                 return;
             case 1: // Settings
                 ui_state = UI_STATE::SETTINGS;
-                redraw();
+                drawAll();
                 return;
             case 2: // Credits
                 return;
@@ -262,20 +437,20 @@ void chess_GUI::HandleMainMenu(int event)
     }
 }
 
-void chess_GUI::HandleSettings(int event)
+void chess_GUI::HandleSettings(const Vector2i &p)
 {
 
 
 }
 
-void chess_GUI::HandleCredits(int event)
+void chess_GUI::HandleCredits(const Vector2i &p)
 {
 
 }
 
 
 // Handle events (e.g. mouse clicking)
-int chess_GUI::handle(int event)
+/*int chess_GUI::handle(int event)
 {
     // After 2 clicks move the piece
     if (event == FL_PUSH)
@@ -301,6 +476,8 @@ int chess_GUI::handle(int event)
     }
 
     return Fl_Widget::handle(event);
-}
+
+    return 0;
+}*/
 
 

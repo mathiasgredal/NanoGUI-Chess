@@ -9,6 +9,25 @@ Board::Board(vector<vector<Chess_Piece*>> pieces)
     chess_pieces = pieces;
 }
 
+int Board::GetBoardScore()
+{
+    float sum = 0;
+    for(auto& row: chess_pieces)
+    {
+        for(auto& piece: row)
+        {
+            sum += piece->piece_Value;
+        }
+    }
+    cout << "Board Evaluation: " << sum << endl;
+    return sum;
+}
+
+vector<Move> Board::AllPossibleMoves()
+{
+    return {};
+}
+
 vector<vector<Chess_Piece*>> Board::Default_Board()
 {
     vector<vector<Chess_Piece*>> default_pieces(8, vector<Chess_Piece*> (8));
@@ -58,6 +77,8 @@ Chess_Piece* Board::Get_Piece(int row, int col){
 
 void Board::Move_Piece(Move mv)
 {
+    chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
+
     delete chess_pieces[mv.r2][mv.c2];
     chess_pieces[mv.r2][mv.c2] = chess_pieces[mv.r1][mv.c1];
     chess_pieces[mv.r1][mv.c1] = nullptr;

@@ -1,47 +1,49 @@
 #ifndef CHESS_GUI_H
 #define CHESS_GUI_H
-
+#include <nanogui/nanogui.h>
 #include <vector>
 #include <iostream>
 
-#include "FL/Fl.H"
-#include "FL/fl_draw.H"
-#include "FL/Fl_Double_Window.H"
 #include "chess_pieces.h"
 
+using namespace nanogui;
 
 // Player and computer color, PLAYER or COM color times chess piece (e.g. COM*W_KING) is >0 for own pieces and <0 for enemy pieces
 const char PLAYER = Chess_Color::White;
 const char COM = Chess_Color::Black;
 
 // Color of the window background (around the board)
-const int WIN_COLOR = 0x23272A00;
+const Color WIN_COLOR = Color(0x23, 0x27, 0x2A, 255);
 
 enum UI_STATE {MAIN_MENU, SETTINGS, CREDITS, IN_GAME, GAMEOVER, PAUSED};
 
 using namespace std;
 
 // Chess board widget
-class chess_GUI : public Fl_Widget
+class chess_GUI : public Screen
 {
 public:
     chess_GUI(int W, Board &startposition);
-    void draw() override;
-    int handle(int event) override;
+    virtual bool keyboardEvent(int key, int scancode, int action, int modifiers);
+
+    virtual void draw(NVGcontext *ctx);
+    virtual bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers);
+
+    virtual void drawContents();
 
 private:
-    Fl_Double_Window *parent_win;
     UI_STATE ui_state = UI_STATE::MAIN_MENU;
     Board *board;
     std::vector<int> click1;
     std::vector<int> click2;
+    int chessPieceFontFace;
 
-    void DrawBoard();
-    void DrawMainMenu();
-    void DrawSettings();
-    void DrawCredits();
+    void DrawBoard(NVGcontext *ctx);
+    void DrawMainMenu(NVGcontext *ctx);
+    void DrawSettings(NVGcontext *ctx);
+    void DrawCredits(NVGcontext *ctx);
 
-    int buttonColor = 0x7289DA00;
+    Color buttonColor = Color(0x72,0x89, 0xDA, 255);
     int buttonWidth = 300;
     int buttonHeight = 70;
     int distButtons = 50;
@@ -49,10 +51,12 @@ private:
     vector<string> menuButtons = {"Play", "Settings", "Credits", "Quit"};
     void Add_Buttons(vector<string> buttonTexts);
 
-    void HandleInGame(int event);
-    void HandleMainMenu(int event);
-    void HandleSettings(int event);
-    void HandleCredits(int event);
+    nanogui::ref<Window> pausedWindow;
+
+    void HandleInGame(const Vector2i &p);
+    void HandleMainMenu(const Vector2i &p);
+    void HandleSettings(const Vector2i &p);
+    void HandleCredits(const Vector2i &p);
 
 };
 

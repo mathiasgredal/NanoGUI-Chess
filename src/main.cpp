@@ -1,11 +1,17 @@
+#define GL_SILENCE_DEPRECATION true
+
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
 #include <iostream>
+#include <nanogui/nanogui.h>
+#include <fontstash.h>
 
 #include "chess_pieces.h"
 #include "chess_GUI.h"
+
+
 
 
 using namespace std;
@@ -17,35 +23,28 @@ int randi(int low, int high)
     return rand() * float(high - low) / RAND_MAX + low;
 }
 
-void AddPiecesToBoard(Board &board)
-{
-
-}
-
 
 int main()
 {
     int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
     srand(time(NULL));      // Initialize random generator
     rand();
-
+    nanogui::init();
 
     Board board(Board::Default_Board());
 
-    AddPiecesToBoard(board);
+    {
+        nanogui::ref<chess_GUI> chess_board = new chess_GUI(win_size, board);
 
+        chess_board->drawAll();
 
-    // Initialize window and chess board
-    Fl_Double_Window win(win_size, win_size, "Chess");
+        chess_board->setVisible(true);
 
-    win.color(WIN_COLOR);
+        nanogui::mainloop();
+    }
 
-    chess_GUI chess_board(win_size, board);
+    nanogui::shutdown();
 
-    win.end();
-    win.show();
-
-    return (Fl::run());
-
+    return 0;
 }
 // COM MOVE - SLUT

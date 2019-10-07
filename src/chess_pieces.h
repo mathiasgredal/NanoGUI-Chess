@@ -43,7 +43,12 @@ class Chess_Piece
         const char* iconLetter;
         int piece_Value;
 
-        bool ValidMove(Move mv, Board &board);
+        virtual bool ValidMove(Move mv, Board &board);
+
+        virtual void RegisterMove(Move mv){
+
+        };
+
         virtual vector<Move> ValidMoves(Board &board) = 0;
 
         virtual ~Chess_Piece();
@@ -64,6 +69,8 @@ public:
     Chess_Piece* Get_Piece(int row, int col);
     void Move_Piece(Move mv);
     void GetLocation(Chess_Piece* piece, int& row, int& col);
+    int GetBoardScore();
+    vector<Move> AllPossibleMoves();
 
     int board_size;
     int s_size;
@@ -234,6 +241,12 @@ class Pawn : public Chess_Piece
         color = _color;
     }
 
+    virtual void RegisterMove(Move mv)
+    {
+        initialMove = false;
+    }
+
+
     virtual vector<Move> ValidMoves(Board &board)
     {
         int row, col;
@@ -247,7 +260,6 @@ class Pawn : public Chess_Piece
         possibleMoves.push_back(Move(row,col,row+dir,col));
 
         if(initialMove){
-            initialMove = false;
             possibleMoves.push_back(Move(row,col,row+2*dir,col));
         }
 
