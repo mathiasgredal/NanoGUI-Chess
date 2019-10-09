@@ -157,7 +157,7 @@ void chess_GUI::DrawBoard(NVGcontext *ctx)
     }
 
     // After first click, mark it in upper left corner, and draw possible moves
-    if (click1[0] >= 0)
+    if (click1[0] >= 0 && board->Get_Piece(click1[0], click1[1])->color == board->currentPlayer)
     {
         nvgBeginPath(nvgContext());
         nvgRect(nvgContext(), board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5);
@@ -289,7 +289,7 @@ bool chess_GUI::mouseButtonEvent(const Vector2i &p, int button, bool down, int m
             break;
         case UI_STATE::IN_GAME:
             if(button == GLFW_MOUSE_BUTTON_1 && down)
-                HandleInGame(p);
+            HandleInGame(p);
             break;
         case UI_STATE::PAUSED:
             break;
@@ -340,26 +340,33 @@ void chess_GUI::drawContents()
 
 void chess_GUI::HandleInGame(const Vector2i &p)
 {
-    cout << "Left mouse click down" << endl;
     std::vector<int> click = {p.y() / board->s_size - 1, p.x() / board->s_size - 1};
+
     if (click[0] >= 0 && click[0] < 8 && click[1] >= 0 && click[1] < 8)
     {
         if (click1[0] < 0 && board->Get_Piece(click[0],click[1])->chess_type != Chess_Type::EMPTY)
         {
-            click1 = click;
-            drawAll();
+            if(board->Get_Piece(click[0], click[1])->color != board->currentPlayer)
+            {
+                click1 = {-1, -1};
+                click2 = {-1, -1};
+            }
+            else
+            {
+                click1 = click;
+                drawAll();
+            }
         }
         else
         {
             click2 = click;
             Move tmp = Move(click1[0], click1[1], click2[0], click2[1]);
+
+
             bool validmove = board->Get_Piece(click1[0],click1[1])->ValidMove(tmp, *board);
 
-            /*
-                if(board->Get_Piece(tmp.r1, tmp.c1)->chess_type == Chess_Type::Rook
-                        && board->Get_Piece(tmp[0],tmp[1])->color == PLAYER){
-                    cout << "Checking move\n";
-                }*/
+            if(board->Get_Piece(tmp.r1, tmp.c1)->color != board->currentPlayer)
+                validmove = false;
 
             if(validmove){
                 cout << "Valid move" << endl;
