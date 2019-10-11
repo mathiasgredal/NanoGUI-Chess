@@ -33,8 +33,6 @@ std::vector<unsigned char> readFile(const char* filename)
 }
 
 
-
-
 chess_GUI::chess_GUI(int W, Board& startposition) : nanogui::Screen(Eigen::Vector2i(W, W), "Skak", false)
 {
     setBackground(WIN_COLOR);
@@ -61,8 +59,6 @@ chess_GUI::chess_GUI(int W, Board& startposition) : nanogui::Screen(Eigen::Vecto
     setTheme(newTheme);
     */
 
-
-    /// dvar, bar, strvar, etc. are double/bool/string/.. variables
 
     FormHelper *gui = new FormHelper(this);
     pausedWindow  = gui->addWindow(Eigen::Vector2i(10, 10), "Paused");
@@ -167,7 +163,7 @@ void chess_GUI::DrawBoard(NVGcontext *ctx)
         //fl_rectf(board->s_size * 0.25, board->s_size * 0.25, board->s_size * 0.5, board->s_size * 0.5, FL_GREEN);
 
 
-        vector<Move> possibleMoves = board->Get_Piece(click1[0], click1[1])->ValidMoves(*board);
+        vector<Move> possibleMoves = board->ValidMoves(click1[0], click1[1]);
 
 
         for(auto& possibleMove: possibleMoves){
@@ -340,8 +336,10 @@ void chess_GUI::drawContents()
 
 void chess_GUI::HandleInGame(const Vector2i &p)
 {
+    // Get click coordinates
     std::vector<int> click = {p.y() / board->s_size - 1, p.x() / board->s_size - 1};
 
+    // Click within chess board
     if (click[0] >= 0 && click[0] < 8 && click[1] >= 0 && click[1] < 8)
     {
         if (click1[0] < 0 && board->Get_Piece(click[0],click[1])->chess_type != Chess_Type::EMPTY)
@@ -362,11 +360,7 @@ void chess_GUI::HandleInGame(const Vector2i &p)
             click2 = click;
             Move tmp = Move(click1[0], click1[1], click2[0], click2[1]);
 
-
-            bool validmove = board->Get_Piece(click1[0],click1[1])->ValidMove(tmp, *board);
-
-            if(board->Get_Piece(tmp.r1, tmp.c1)->color != board->currentPlayer)
-                validmove = false;
+            bool validmove = board->ValidMove(tmp);
 
             if(validmove){
                 cout << "Valid move" << endl;

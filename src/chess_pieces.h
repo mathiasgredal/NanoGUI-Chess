@@ -45,8 +45,6 @@ public:
     const char* iconLetter;
     int piece_Value;
 
-    virtual bool ValidMove(Move mv, Board &board);
-
     virtual void RegisterMove(Move mv){
 
     };
@@ -54,6 +52,7 @@ public:
     virtual vector<Move> ValidMoves(Board &board);
 
     virtual ~Chess_Piece();
+    virtual Chess_Piece *Clone() = 0;
 };
 
 class Board
@@ -61,18 +60,22 @@ class Board
 public:
     // Constructor
     Board(vector<vector<Chess_Piece*>> pieces);
+    Board(const Board& rhs);
+
+    ~Board();
 
     // Normal chess layout
     static vector<vector<Chess_Piece*>> Default_Board();
 
     void Add_Piece_To_Board(Chess_Piece* piece, int row, int col);
     Chess_Piece* Get_Piece(int row, int col);
+    vector<Chess_Piece*> GetPiecesOfColor(Chess_Color color);
     void GetLocation(Chess_Piece* piece, int& row, int& col);
     int GetBoardScore();
     vector<Move> AllPossibleMoves();
 
     vector<Move> ValidMoves(int row, int col);
-    bool ValidMove(int row, int col);
+    bool ValidMove(Move usermove);
     void Move_Piece(Move mv);
 
 
@@ -117,6 +120,20 @@ public:
             iconLetter = "♜";
 
         color = _color;
+    }
+
+    Rook(const Rook& rhs)
+    {
+        //cout << "Rook created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Rook(*this);
     }
 
     virtual vector<Move> ValidMoves(Board &board)
@@ -188,10 +205,56 @@ public:
         color = _color;
     }
 
+    King(const King& rhs)
+    {
+        //cout << "King created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new King(*this);
+    }
+
     virtual vector<Move> ValidMoves(Board &board)
     {
+        // Get coordinates
+        int row, col;
+        board.GetLocation(this, row, col);
 
-        return {Move(0,0,5,5)};
+        vector<Move> possibleMoves = {};
+
+        // Top
+        possibleMoves.push_back(Move(row, col, row+1, col));
+        // Top right
+        possibleMoves.push_back(Move(row, col, row+1, col+1));
+        // right
+        possibleMoves.push_back(Move(row, col, row, col+1));
+        // bottom right
+        possibleMoves.push_back(Move(row, col, row-1, col+1));
+        // bottom
+        possibleMoves.push_back(Move(row, col, row-1, col));
+        // bottom left
+        possibleMoves.push_back(Move(row, col, row-1, col-1));
+        // left
+        possibleMoves.push_back(Move(row, col, row, col-1));
+        // top left
+        possibleMoves.push_back(Move(row, col, row+1, col-1));
+
+        // remove moves out of bounds and targeting pieces of similar color
+        vector<Move>::iterator it = possibleMoves.begin();
+
+        while(it != possibleMoves.end()) {
+            if(PositionOutOfBounds(it->r2, it->c2) || board.Get_Piece(it->r2, it->c2)->color == color)
+                it = possibleMoves.erase(it);
+            else
+                ++it;
+        }
+
+        return possibleMoves;
     }
 };
 
@@ -209,6 +272,20 @@ public:
             iconLetter = "♛";
 
         color = _color;
+    }
+
+    Queen(const Queen& rhs)
+    {
+        //cout << "Queen created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Queen(*this);
     }
 
     virtual vector<Move> ValidMoves(Board &board)
@@ -353,6 +430,20 @@ public:
         color = _color;
     }
 
+    Bishop(const Bishop& rhs)
+    {
+        //cout << "Bishop created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Bishop(*this);
+    }
+
     virtual vector<Move> ValidMoves(Board &board)
     {
         int row, col;
@@ -452,6 +543,20 @@ public:
         color = _color;
     }
 
+    Knight(const Knight& rhs)
+    {
+        //cout << "Knight created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Knight(*this);
+    }
+
     virtual vector<Move> ValidMoves(Board &board)
     {
         // Get coordinates
@@ -511,6 +616,21 @@ public:
         color = _color;
     }
 
+    Pawn(const Pawn& rhs)
+    {
+        //cout << "Pawn created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+        initialMove = rhs.initialMove;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Pawn(*this);
+    }
+
     virtual void RegisterMove(Move mv)
     {
         initialMove = false;
@@ -559,6 +679,20 @@ public:
         piece_Value = 0;
         iconLetter = " ";
         color = Chess_Color::Empty;
+    }
+
+    Empty(const Empty& rhs)
+    {
+        //cout << "Empty created by deep copy" << endl;
+        chess_type = rhs.chess_type;
+        piece_Value = rhs.piece_Value;
+        iconLetter = rhs.iconLetter;
+        color = rhs.color;
+    }
+
+    Chess_Piece *Clone()
+    {
+        return new Empty(*this);
     }
 
     virtual vector<Move> ValidMoves(Board &board)

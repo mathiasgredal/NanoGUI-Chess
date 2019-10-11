@@ -8,37 +8,6 @@ vector<Move> Chess_Piece::ValidMoves(Board &board)
 
 }
 
-bool Chess_Piece::ValidMove(Move usermove, Board &board)
-{
-    // TODO: Add code here to check for basic errors in move, that might not be checked in function
-
-    // Check if invalid turn
-    if(board.Get_Piece(usermove.r1, usermove.c1)->color != board.currentPlayer)
-        return false;
-
-    vector<Move> validmoves = ValidMoves(board);
-
-    cout << "Our move: ";
-    usermove.Print_Move();
-
-    /*
-     * TODO: Use STL functions
-     *
-        if(std::find(validmoves.begin(), validmoves.end(), mv) != validmoves.end()) {
-            return true;
-        } else {
-            return false;
-    }*/
-
-    for(Move& validmove: validmoves){
-        validmove.Print_Move();
-        if(validmove == usermove)
-            return true;
-    }
-
-    return false;
-}
-
 Chess_Piece::~Chess_Piece(){
 
 }

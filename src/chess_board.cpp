@@ -6,6 +6,28 @@ Board::Board(vector<vector<Chess_Piece*>> pieces)
     chess_pieces = pieces;
 }
 
+Board::~Board(){
+
+}
+
+Board::Board(const Board& rhs)
+{
+    //cout << "Board created by deep copy" << endl;
+    board_size = rhs.board_size;
+    s_size = rhs.s_size;
+    currentPlayer = rhs.currentPlayer;
+    chess_pieces = vector(8, vector<Chess_Piece*> (8));
+
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            if(rhs.chess_pieces[row][col] != nullptr)
+            {
+                chess_pieces[row][col] = (*rhs.chess_pieces[row][col]).Clone();
+            }
+        }
+    }
+}
+
 int Board::GetBoardScore()
 {
     float sum = 0;
@@ -23,6 +45,19 @@ int Board::GetBoardScore()
 vector<Move> Board::AllPossibleMoves()
 {
     return {};
+}
+
+vector<Chess_Piece*> Board::GetPiecesOfColor(Chess_Color color)
+{
+    vector<Chess_Piece*> pieces(0);
+    for (auto& row : chess_pieces) {
+        for (auto& piece : row) {
+            if(piece != nullptr && piece->color == color)
+                pieces.push_back(piece);
+        }
+    }
+
+    return pieces;
 }
 
 vector<vector<Chess_Piece*>> Board::Default_Board()
@@ -103,10 +138,69 @@ void Board::GetLocation(Chess_Piece* piece, int& row, int& col)
 
 vector<Move> Board::ValidMoves(int row, int col)
 {
+    // Get Piece
+    Chess_Piece* selectedPiece = Get_Piece(row, col);
 
+    // Check if the piece is of the correct color
+    if(selectedPiece->color != this->currentPlayer)
+        return {};
+
+    Chess_Color opponentPlayer = (this->currentPlayer == Chess_Color::White)?
+                Chess_Color::Black : Chess_Color::White;
+
+    vector<Move> validmoves = selectedPiece->ValidMoves(*this);
+
+
+
+    // remove invalid moves
+    vector<Move>::iterator it = validmoves.begin();
+
+    while(it != validmoves.end())
+    {
+        bool invalidMove = false;
+        // Get Piece
+        Chess_Piece* destinationPiece = Get_Piece(it->r2, it->c2);
+
+
+        // We are not allowed to attack a king
+        if(destinationPiece->chess_type == Chess_Type::King)
+            invalidMove = true;
+
+        // We are not allowed to make a move which exposes the king
+        Board newboard = *this;
+        newboard.Move_Piece(*it);
+        for (auto& piece : newboard.GetPiecesOfColor(opponentPlayer)) {
+            for (auto& possibleMove : piece->ValidMoves(newboard)) {
+                if(newboard.Get_Piece(possibleMove.r2, possibleMove.c2)->chess_type == Chess_Type::King)
+                    invalidMove = true;
+            }
+        }
+
+        if(invalidMove)
+            it = validmoves.erase(it);
+        else
+            ++it;
+    }
+
+    return validmoves;
 }
 
-bool Board::ValidMove(int row, int col)
-{
 
+bool Board::ValidMove(Move usermove)
+{
+    vector<Move> validmoves = ValidMoves(usermove.r1, usermove.c1);
+
+    // TODO: Use STL functions
+    // if(std::find(validmoves.begin(), validmoves.end(), mv) != validmoves.end())
+    //     return true;
+    // else
+    //     return false;
+
+    for(Move& validmove: validmoves){
+        //validmove.Print_Move();
+        if(validmove == usermove)
+            return true;
+    }
+
+    return false;
 }

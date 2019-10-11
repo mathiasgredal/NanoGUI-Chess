@@ -20,10 +20,9 @@ int main()
     nanogui::init();
 
     Board board(Board::Default_Board());
+
     {
         nanogui::ref<chess_GUI> chess_board = new chess_GUI(win_size, board);
-
-        chess_board->drawAll();
 
         chess_board->setVisible(true);
 
