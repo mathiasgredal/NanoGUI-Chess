@@ -1,13 +1,25 @@
+#include <utility>
+
 #include "chess_pieces.h"
 
 
 Board::Board(vector<vector<Chess_Piece*>> pieces)
 {
-    chess_pieces = pieces;
+    chess_pieces = std::move(pieces);
+
+    emptyPiece = new class Empty();
 }
 
-Board::~Board(){
-
+Board::~Board()
+{
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            if(chess_pieces[row][col] != nullptr)
+            {
+                delete chess_pieces[row][col];
+            }
+        }
+    }
 }
 
 Board::Board(const Board& rhs)
@@ -17,6 +29,7 @@ Board::Board(const Board& rhs)
     s_size = rhs.s_size;
     currentPlayer = rhs.currentPlayer;
     chess_pieces = vector(8, vector<Chess_Piece*> (8));
+    emptyPiece = rhs.emptyPiece;
 
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -103,9 +116,10 @@ Chess_Piece* Board::Get_Piece(int row, int col)
 {
     if(row < chess_pieces.size() && col < chess_pieces.size() && chess_pieces[row][col])
         return chess_pieces[row][col];
-    else
-        return new class Empty();
+    
+        return emptyPiece;
 }
+
 
 
 void Board::Move_Piece(Move mv)
@@ -153,7 +167,7 @@ vector<Move> Board::ValidMoves(int row, int col)
 
 
     // remove invalid moves
-    vector<Move>::iterator it = validmoves.begin();
+    auto it = validmoves.begin();
 
     while(it != validmoves.end())
     {

@@ -8,9 +8,7 @@ vector<Move> Chess_Piece::ValidMoves(Board &board)
 
 }
 
-Chess_Piece::~Chess_Piece(){
-
-}
+Chess_Piece::~Chess_Piece()= default;
 
 
 Move::Move(int row1,int col1, int row2, int col2)

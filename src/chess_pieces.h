@@ -31,7 +31,7 @@ public:
     bool operator == (Move mv){
         if(r1 == mv.r1 && r2 == mv.r2 && c1 == mv.c1 && c2 == mv.c2)
             return true;
-        else
+        
             return false;
     }
 };
@@ -42,8 +42,8 @@ class Chess_Piece
 public:
     Chess_Type chess_type;
     Chess_Color color;
-    const char* iconLetter;
-    int piece_Value;
+    const char* iconLetter{};
+    int piece_Value{};
 
     virtual void RegisterMove(Move mv){
 
@@ -69,6 +69,7 @@ public:
 
     void Add_Piece_To_Board(Chess_Piece* piece, int row, int col);
     Chess_Piece* Get_Piece(int row, int col);
+
     vector<Chess_Piece*> GetPiecesOfColor(Chess_Color color);
     void GetLocation(Chess_Piece* piece, int& row, int& col);
     int GetBoardScore();
@@ -79,10 +80,14 @@ public:
     void Move_Piece(Move mv);
 
 
-    int board_size;
-    int s_size;
+    int board_size{};
+    int s_size{};
     vector<vector<Chess_Piece*>> chess_pieces;
     Chess_Color currentPlayer = Chess_Color::White;
+
+
+    // This is neccecery
+    Chess_Piece* emptyPiece;
 
 };
 
@@ -91,7 +96,7 @@ static bool IsOccupiedBlock(int row, int col, Board& board)
     // Move 1 forward if empty
     if(board.Get_Piece(row, col) == nullptr)
         return false;
-    else if (row < 8 && row > 0 && board.Get_Piece(row, col)->chess_type == Chess_Type::EMPTY)
+    if (row < 8 && row > 0 && board.Get_Piece(row, col)->chess_type == Chess_Type::EMPTY)
         return false;
     else
         return true;
@@ -102,14 +107,14 @@ static bool PositionOutOfBounds(int row, int col)
     // Move 1 forward if empty
     if(row < 8 && row >= 0 && col < 8 && col >= 0)
         return false;
-    else
+    
         return true;
 }
 
 class Rook : public Chess_Piece
 {
 public:
-    Rook(int _row, int _col, Chess_Color _color)
+    Rook(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::Rook;
         piece_Value = 5;
@@ -123,7 +128,7 @@ public:
     }
 
     Rook(const Rook& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Rook created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -131,12 +136,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Rook(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
         int row, col;
         board.GetLocation(this, row, col);
@@ -149,7 +154,7 @@ public:
             if(board.Get_Piece(row,x)->color == color)
                 break;
 
-            possibleMoves.push_back(Move(row, col, row, x));
+            possibleMoves.emplace_back(row, col, row, x);
 
             if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
                 break;
@@ -160,7 +165,7 @@ public:
         {
             if(board.Get_Piece(row,x)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, row, x));
+            possibleMoves.emplace_back(row, col, row, x);
             if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -170,7 +175,7 @@ public:
         {
             if(board.Get_Piece(x,col)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, x, col));
+            possibleMoves.emplace_back(row, col, x, col);
             if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -180,7 +185,7 @@ public:
         {
             if(board.Get_Piece(x, col)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, x, col));
+            possibleMoves.emplace_back(row, col, x, col);
             if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -192,7 +197,7 @@ public:
 class King : public Chess_Piece
 {
 public:
-    King(int _row, int _col, Chess_Color _color)
+    King(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::King;
         piece_Value = 150;
@@ -206,7 +211,7 @@ public:
     }
 
     King(const King& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "King created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -214,12 +219,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new King(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
         // Get coordinates
         int row, col;
@@ -228,24 +233,24 @@ public:
         vector<Move> possibleMoves = {};
 
         // Top
-        possibleMoves.push_back(Move(row, col, row+1, col));
+        possibleMoves.emplace_back(row, col, row+1, col);
         // Top right
-        possibleMoves.push_back(Move(row, col, row+1, col+1));
+        possibleMoves.emplace_back(row, col, row+1, col+1);
         // right
-        possibleMoves.push_back(Move(row, col, row, col+1));
+        possibleMoves.emplace_back(row, col, row, col+1);
         // bottom right
-        possibleMoves.push_back(Move(row, col, row-1, col+1));
+        possibleMoves.emplace_back(row, col, row-1, col+1);
         // bottom
-        possibleMoves.push_back(Move(row, col, row-1, col));
+        possibleMoves.emplace_back(row, col, row-1, col);
         // bottom left
-        possibleMoves.push_back(Move(row, col, row-1, col-1));
+        possibleMoves.emplace_back(row, col, row-1, col-1);
         // left
-        possibleMoves.push_back(Move(row, col, row, col-1));
+        possibleMoves.emplace_back(row, col, row, col-1);
         // top left
-        possibleMoves.push_back(Move(row, col, row+1, col-1));
+        possibleMoves.emplace_back(row, col, row+1, col-1);
 
         // remove moves out of bounds and targeting pieces of similar color
-        vector<Move>::iterator it = possibleMoves.begin();
+        auto it = possibleMoves.begin();
 
         while(it != possibleMoves.end()) {
             if(PositionOutOfBounds(it->r2, it->c2) || board.Get_Piece(it->r2, it->c2)->color == color)
@@ -261,7 +266,7 @@ public:
 class Queen : public Chess_Piece
 {
 public:
-    Queen(int _row, int _col, Chess_Color _color)
+    Queen(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::Queen;
         piece_Value = 15;
@@ -275,7 +280,7 @@ public:
     }
 
     Queen(const Queen& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Queen created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -283,12 +288,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Queen(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
 
         int row, col;
@@ -302,7 +307,7 @@ public:
             if(board.Get_Piece(row,x)->color == color)
                 break;
 
-            possibleMoves.push_back(Move(row, col, row, x));
+            possibleMoves.emplace_back(row, col, row, x);
 
             if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
                 break;
@@ -313,7 +318,7 @@ public:
         {
             if(board.Get_Piece(row,x)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, row, x));
+            possibleMoves.emplace_back(row, col, row, x);
             if(board.Get_Piece(row,x)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -323,7 +328,7 @@ public:
         {
             if(board.Get_Piece(x,col)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, x, col));
+            possibleMoves.emplace_back(row, col, x, col);
             if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -333,7 +338,7 @@ public:
         {
             if(board.Get_Piece(x, col)->color == color)
                 break;
-            possibleMoves.push_back(Move(row, col, x, col));
+            possibleMoves.emplace_back(row, col, x, col);
             if(board.Get_Piece(x,col)->chess_type != Chess_Type::EMPTY)
                 break;
         }
@@ -346,10 +351,10 @@ public:
 
             if(!IsOccupiedBlock(row-x, col-x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row-x, col-x));
+                possibleMoves.emplace_back(row, col, row-x, col-x);
             }
             else if(board.Get_Piece(row-x, col-x)->color != color){
-                possibleMoves.push_back(Move(row, col, row-x, col-x));
+                possibleMoves.emplace_back(row, col, row-x, col-x);
                 break;
             }
             else
@@ -364,10 +369,10 @@ public:
 
             if(!IsOccupiedBlock(row-x, col+x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row-x, col+x));
+                possibleMoves.emplace_back(row, col, row-x, col+x);
             }
             else if(board.Get_Piece(row-x, col+x)->color != color){
-                possibleMoves.push_back(Move(row, col, row-x, col+x));
+                possibleMoves.emplace_back(row, col, row-x, col+x);
                 break;
             }
             else
@@ -382,10 +387,10 @@ public:
 
             if(!IsOccupiedBlock(row+x, col-x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row+x, col-x));
+                possibleMoves.emplace_back(row, col, row+x, col-x);
             }
             else if(board.Get_Piece(row+x, col-x)->color != color){
-                possibleMoves.push_back(Move(row, col, row+x, col-x));
+                possibleMoves.emplace_back(row, col, row+x, col-x);
                 break;
             }
             else
@@ -400,10 +405,10 @@ public:
 
             if(!IsOccupiedBlock(row+x, col+x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row+x, col+x));
+                possibleMoves.emplace_back(row, col, row+x, col+x);
             }
             else if(board.Get_Piece(row+x, col+x)->color != color){
-                possibleMoves.push_back(Move(row, col, row+x, col+x));
+                possibleMoves.emplace_back(row, col, row+x, col+x);
                 break;
             }
             else
@@ -417,7 +422,7 @@ public:
 class Bishop : public Chess_Piece
 {
 public:
-    Bishop(int _row, int _col, Chess_Color _color)
+    Bishop(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::Bishop;
         piece_Value = 5;
@@ -431,7 +436,7 @@ public:
     }
 
     Bishop(const Bishop& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Bishop created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -439,12 +444,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Bishop(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
         int row, col;
         board.GetLocation(this, row, col);
@@ -459,10 +464,10 @@ public:
 
             if(!IsOccupiedBlock(row-x, col-x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row-x, col-x));
+                possibleMoves.emplace_back(row, col, row-x, col-x);
             }
             else if(board.Get_Piece(row-x, col-x)->color != color){
-                possibleMoves.push_back(Move(row, col, row-x, col-x));
+                possibleMoves.emplace_back(row, col, row-x, col-x);
                 break;
             }
             else
@@ -477,10 +482,10 @@ public:
 
             if(!IsOccupiedBlock(row-x, col+x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row-x, col+x));
+                possibleMoves.emplace_back(row, col, row-x, col+x);
             }
             else if(board.Get_Piece(row-x, col+x)->color != color){
-                possibleMoves.push_back(Move(row, col, row-x, col+x));
+                possibleMoves.emplace_back(row, col, row-x, col+x);
                 break;
             }
             else
@@ -495,10 +500,10 @@ public:
 
             if(!IsOccupiedBlock(row+x, col-x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row+x, col-x));
+                possibleMoves.emplace_back(row, col, row+x, col-x);
             }
             else if(board.Get_Piece(row+x, col-x)->color != color){
-                possibleMoves.push_back(Move(row, col, row+x, col-x));
+                possibleMoves.emplace_back(row, col, row+x, col-x);
                 break;
             }
             else
@@ -513,10 +518,10 @@ public:
 
             if(!IsOccupiedBlock(row+x, col+x, board) )
             {
-                possibleMoves.push_back(Move(row, col, row+x, col+x));
+                possibleMoves.emplace_back(row, col, row+x, col+x);
             }
             else if(board.Get_Piece(row+x, col+x)->color != color){
-                possibleMoves.push_back(Move(row, col, row+x, col+x));
+                possibleMoves.emplace_back(row, col, row+x, col+x);
                 break;
             }
             else
@@ -530,7 +535,7 @@ public:
 class Knight : public Chess_Piece
 {
 public:
-    Knight(int _row, int _col, Chess_Color _color)
+    Knight(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::Knight;
         piece_Value = 5;
@@ -544,7 +549,7 @@ public:
     }
 
     Knight(const Knight& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Knight created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -552,12 +557,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Knight(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
         // Get coordinates
         int row, col;
@@ -566,28 +571,28 @@ public:
         vector<Move> possibleMoves = {};
 
         // Top right move
-        possibleMoves.push_back(Move(row, col, row+2, col+1));
+        possibleMoves.emplace_back(row, col, row+2, col+1);
         // Top left move
-        possibleMoves.push_back(Move(row, col, row+2, col-1));
+        possibleMoves.emplace_back(row, col, row+2, col-1);
 
         // Right top move
-        possibleMoves.push_back(Move(row, col, row+1, col+2));
+        possibleMoves.emplace_back(row, col, row+1, col+2);
         // Right bottom move
-        possibleMoves.push_back(Move(row, col, row-1, col+2));
+        possibleMoves.emplace_back(row, col, row-1, col+2);
 
         // Bottom right move
-        possibleMoves.push_back(Move(row, col, row-2, col+1));
+        possibleMoves.emplace_back(row, col, row-2, col+1);
         // Bottom left move
-        possibleMoves.push_back(Move(row, col, row-2, col-1));
+        possibleMoves.emplace_back(row, col, row-2, col-1);
 
         // Left top move
-        possibleMoves.push_back(Move(row, col, row+1, col-2));
+        possibleMoves.emplace_back(row, col, row+1, col-2);
         // Left bottom move
-        possibleMoves.push_back(Move(row, col, row-1, col-2));
+        possibleMoves.emplace_back(row, col, row-1, col-2);
 
 
         // remove moves out of bounds and targeting pieces of similar color
-        vector<Move>::iterator it = possibleMoves.begin();
+        auto it = possibleMoves.begin();
 
         while(it != possibleMoves.end()) {
             if(PositionOutOfBounds(it->r2, it->c2) || board.Get_Piece(it->r2, it->c2)->color == color)
@@ -603,7 +608,7 @@ public:
 class Pawn : public Chess_Piece
 {
 public:
-    Pawn(int _row, int _col, Chess_Color _color)
+    Pawn(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::Pawn;
         piece_Value = 1;
@@ -617,7 +622,7 @@ public:
     }
 
     Pawn(const Pawn& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Pawn created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -626,17 +631,17 @@ public:
         initialMove = rhs.initialMove;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Pawn(*this);
     }
 
-    virtual void RegisterMove(Move mv)
+    void RegisterMove(Move  /*mv*/) override
     {
         initialMove = false;
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board &board) override
     {
         // Get coordinates
         int row, col;
@@ -649,19 +654,19 @@ public:
 
         // Move 1 forward if empty
         if(!IsOccupiedBlock(row+dir, col, board) && !PositionOutOfBounds(row, col))
-            possibleMoves.push_back(Move(row,col,row+dir,col));
+            possibleMoves.emplace_back(row,col,row+dir,col);
 
         // Initial move is 2 forward
         if(initialMove && !IsOccupiedBlock(row+dir*2, col, board) && !PositionOutOfBounds(row,col))
-            possibleMoves.push_back(Move(row,col,row+dir*2,col));
+            possibleMoves.emplace_back(row,col,row+dir*2,col);
 
         // Attack right diagonal
         if(!PositionOutOfBounds(row, col) && IsOccupiedBlock(row+dir, col+1, board) && board.Get_Piece(row+dir, col+1)->color != color)
-            possibleMoves.push_back(Move(row,col,row+dir,col+1));
+            possibleMoves.emplace_back(row,col,row+dir,col+1);
 
         // Attack left diagonal
         if(!PositionOutOfBounds(row, col) && IsOccupiedBlock(row+dir, col-1, board) && board.Get_Piece(row+dir, col-1)->color != color)
-            possibleMoves.push_back(Move(row,col,row+dir,col-1));
+            possibleMoves.emplace_back(row,col,row+dir,col-1);
 
         return possibleMoves;
     }
@@ -682,7 +687,7 @@ public:
     }
 
     Empty(const Empty& rhs)
-    {
+     : Chess_Piece(rhs) {
         //cout << "Empty created by deep copy" << endl;
         chess_type = rhs.chess_type;
         piece_Value = rhs.piece_Value;
@@ -690,12 +695,12 @@ public:
         color = rhs.color;
     }
 
-    Chess_Piece *Clone()
+    Chess_Piece *Clone() override
     {
         return new Empty(*this);
     }
 
-    virtual vector<Move> ValidMoves(Board &board)
+    vector<Move> ValidMoves(Board & /*board*/) override
     {
         return {};
     }

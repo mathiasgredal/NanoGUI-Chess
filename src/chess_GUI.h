@@ -24,12 +24,12 @@ class chess_GUI : public Screen
 {
 public:
     chess_GUI(int W, Board &startposition);
-    virtual bool keyboardEvent(int key, int scancode, int action, int modifiers);
+    bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
 
-    virtual void draw(NVGcontext *ctx);
-    virtual bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers);
+    void draw(NVGcontext *ctx) override;
+    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override;
 
-    virtual void drawContents();
+    void drawContents() override;
 
 private:
     UI_STATE ui_state = UI_STATE::MAIN_MENU;

@@ -60,7 +60,7 @@ chess_GUI::chess_GUI(int W, Board& startposition) : nanogui::Screen(Eigen::Vecto
     */
 
 
-    FormHelper *gui = new FormHelper(this);
+    auto *gui = new FormHelper(this);
     pausedWindow  = gui->addWindow(Eigen::Vector2i(10, 10), "Paused");
 
     gui->addButton("Continue", [this](){ ui_state = UI_STATE::IN_GAME; });
@@ -88,7 +88,7 @@ chess_GUI::chess_GUI(int W, Board& startposition) : nanogui::Screen(Eigen::Vecto
 }
 
 
-void chess_GUI::DrawBoard(NVGcontext *ctx)
+void chess_GUI::DrawBoard(NVGcontext * /*ctx*/)
 {
     // Draw numbers and letters outside board
     nvgBeginPath(nvgContext());
@@ -147,7 +147,6 @@ void chess_GUI::DrawBoard(NVGcontext *ctx)
     {
         for (int c = 0; c < 8; c++)
         {
-
             nvgText(nvgContext(), board->s_size * (c + 1.5), board->s_size * (r + 1.5), board->Get_Piece(r,c)->iconLetter , nullptr);
         }
     }
@@ -212,7 +211,7 @@ void chess_GUI::Add_Buttons(vector<string> buttonTexts)
         nvgFontFace(nvgContext(), "sans");
         nvgFillColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
         nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-        nvgText(nvgContext(), board->board_size/2, y+buttonHeight/2, buttonTexts.at(i).c_str(), NULL);
+        nvgText(nvgContext(), board->board_size/2, y+buttonHeight/2, buttonTexts.at(i).c_str(), nullptr);
     }
 
 }
@@ -236,7 +235,7 @@ void chess_GUI::DrawMainMenu(NVGcontext *ctx)
     nvgFontFace(ctx, "sans");
     nvgFillColor(ctx, nvgRGBA(255, 255, 255, 255));
     nvgTextAlign(ctx, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-    nvgText(ctx, board->board_size/2, board->board_size*0.97f, "Made By: Mathias Gredal, Niklas Haim, Peter - 2.X", NULL);
+    nvgText(ctx, board->board_size/2, board->board_size*0.97f, "Made By: Mathias Gredal, Niklas Haim, Peter - 2.X", nullptr);
 
 }
 
@@ -256,7 +255,7 @@ void chess_GUI::DrawCredits(NVGcontext *ctx)
 
 }
 
-bool chess_GUI::keyboardEvent(int key, int scancode, int action, int modifiers)
+bool chess_GUI::keyboardEvent(int key, int  /*scancode*/, int action, int  /*modifiers*/)
 {
     if(key == GLFW_KEY_P && action == GLFW_PRESS)
     {
@@ -294,7 +293,7 @@ bool chess_GUI::mouseButtonEvent(const Vector2i &p, int button, bool down, int m
         }
     }
 
-    return 0;
+    return false;
 }
 
 
