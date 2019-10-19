@@ -21,7 +21,10 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 include_directories(libs/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 
-add_executable(chess main.cpp chess_GUI.cpp chess_GUI.h chess_pieces.cpp chess_pieces.h chess_board.cpp)
+add_executable(chess main.cpp
+	chess_GUI.cpp chess_GUI.h
+	chess_pieces.cpp chess_pieces.h chess_board.cpp
+	computer.cpp computer.h)
 
 # Important for reasons
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")

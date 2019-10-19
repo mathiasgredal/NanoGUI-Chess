@@ -13,7 +13,6 @@ enum Chess_Color {Black, White, Empty};
 
 class Board;
 
-
 class Move
 {
 public:
@@ -88,7 +87,6 @@ public:
 
     // This is neccecery
     Chess_Piece* emptyPiece;
-
 };
 
 static bool IsOccupiedBlock(int row, int col, Board& board)
@@ -96,7 +94,8 @@ static bool IsOccupiedBlock(int row, int col, Board& board)
     // Move 1 forward if empty
     if(board.Get_Piece(row, col) == nullptr)
         return false;
-    if (row < 8 && row > 0 && board.Get_Piece(row, col)->chess_type == Chess_Type::EMPTY)
+
+    if (row < 8 && row >= 0 && board.Get_Piece(row, col)->chess_type == Chess_Type::EMPTY)
         return false;
     else
         return true;
@@ -653,19 +652,19 @@ public:
 
 
         // Move 1 forward if empty
-        if(!IsOccupiedBlock(row+dir, col, board) && !PositionOutOfBounds(row, col))
+        if(!PositionOutOfBounds(row+dir, col) && !IsOccupiedBlock(row+dir, col, board))
             possibleMoves.emplace_back(row,col,row+dir,col);
 
         // Initial move is 2 forward
-        if(initialMove && !IsOccupiedBlock(row+dir*2, col, board) && !PositionOutOfBounds(row,col))
+        if(initialMove && !PositionOutOfBounds(row+dir*2,col) && !IsOccupiedBlock(row+dir*2, col, board))
             possibleMoves.emplace_back(row,col,row+dir*2,col);
 
         // Attack right diagonal
-        if(!PositionOutOfBounds(row, col) && IsOccupiedBlock(row+dir, col+1, board) && board.Get_Piece(row+dir, col+1)->color != color)
+        if(!PositionOutOfBounds(row+dir, col+1) && IsOccupiedBlock(row+dir, col+1, board) && board.Get_Piece(row+dir, col+1)->color != color)
             possibleMoves.emplace_back(row,col,row+dir,col+1);
 
         // Attack left diagonal
-        if(!PositionOutOfBounds(row, col) && IsOccupiedBlock(row+dir, col-1, board) && board.Get_Piece(row+dir, col-1)->color != color)
+        if(!PositionOutOfBounds(row+dir, col-1) && IsOccupiedBlock(row+dir, col-1, board) && board.Get_Piece(row+dir, col-1)->color != color)
             possibleMoves.emplace_back(row,col,row+dir,col-1);
 
         return possibleMoves;

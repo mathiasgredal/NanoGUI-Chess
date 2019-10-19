@@ -48,7 +48,8 @@ int Board::GetBoardScore()
     {
         for(auto& piece: row)
         {
-            sum += piece->piece_Value;
+            if(piece != nullptr)
+                sum += (piece->color != currentPlayer)? piece->piece_Value : piece->piece_Value*-1;
         }
     }
     cout << "Board Evaluation: " << sum << endl;
@@ -116,14 +117,13 @@ Chess_Piece* Board::Get_Piece(int row, int col)
 {
     if(row < chess_pieces.size() && col < chess_pieces.size() && chess_pieces[row][col])
         return chess_pieces[row][col];
-    
+    else
         return emptyPiece;
 }
 
-
-
 void Board::Move_Piece(Move mv)
 {
+    // TODO: This method is doing very dangerous things, can potentially crash the program
     chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
 
     delete chess_pieces[mv.r2][mv.c2];
@@ -152,6 +152,7 @@ void Board::GetLocation(Chess_Piece* piece, int& row, int& col)
 
 vector<Move> Board::ValidMoves(int row, int col)
 {
+
     // Get Piece
     Chess_Piece* selectedPiece = Get_Piece(row, col);
 
@@ -165,7 +166,6 @@ vector<Move> Board::ValidMoves(int row, int col)
     vector<Move> validmoves = selectedPiece->ValidMoves(*this);
 
 
-
     // remove invalid moves
     auto it = validmoves.begin();
 
@@ -175,13 +175,13 @@ vector<Move> Board::ValidMoves(int row, int col)
         // Get Piece
         Chess_Piece* destinationPiece = Get_Piece(it->r2, it->c2);
 
-
         // We are not allowed to attack a king
         if(destinationPiece->chess_type == Chess_Type::King)
             invalidMove = true;
 
         // We are not allowed to make a move which exposes the king
         Board newboard = *this;
+
         newboard.Move_Piece(*it);
         for (auto& piece : newboard.GetPiecesOfColor(opponentPlayer)) {
             for (auto& possibleMove : piece->ValidMoves(newboard)) {
@@ -197,6 +197,7 @@ vector<Move> Board::ValidMoves(int row, int col)
     }
 
     return validmoves;
+
 }
 
 
