@@ -44,7 +44,6 @@ chess_GUI::chess_GUI(int W) : nanogui::Screen(Eigen::Vector2i(W, W), "Skak", fal
     gameSelectWindow = gameselectgui->addWindow(Eigen::Vector2i(10, 10), "Choose game");
 
     // Start a new group
-    gameselectgui->addGroup("Group 1");
     gameselectgui->addButton("Player vs. Player", [this](){ StartGame(Player_Type::HUMAN, Player_Type::HUMAN); });
     gameselectgui->addButton("Player vs. Computer", [this](){ StartGame(Player_Type::HUMAN, Player_Type::COMPUTER); });
     gameselectgui->addButton("Computer vs. Player", [this](){ StartGame(Player_Type::COMPUTER, Player_Type::HUMAN); });
@@ -317,7 +316,7 @@ void chess_GUI::HandleInGame(const Vector2i &p)
         // This is the first click
         click1 = click;
 
-        // Check if player selected their piece
+        // Check if player selected opponents piece
         if(board->Get_Piece(click.x(), click.y())->color != board->currentPlayer)
             click1 = {-1, -1};
     }
@@ -327,15 +326,37 @@ void chess_GUI::HandleInGame(const Vector2i &p)
 
         if(board->ValidMove(tmp)){
             board->Move_Piece(tmp);
+            //update_piece(tmp); // Computer move
+            if(board->IsCheck())
+            {
+                cout << "Check" << endl;
+            }
+            if(board->IsCheckMate())
+            {
+                cout << "Checkmate" << endl;
+                pausedWindow->setVisible(true);
+            }
+
+            drawAll();
 
             if(board->currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER ||
                board->currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER)
             {
-                drawAll();
-                board->Move_Piece(Computer::GetSimpleMove(*board));
-                usleep(1000000);
+                board->Move_Piece(Computer::GetMiniMaxMove(*board));
+                //update_piece(tmp); // Computer move
+                if(board->IsCheck())
+                {
+                    cout << "Check" << endl;
+                }
+                if(board->IsCheckMate())
+                {
+                    cout << "Checkmate" << endl;
+                    pausedWindow->setVisible(true);
+                }
+
+
             }
-            //update_piece(tmp); // Computer move
+
         }
 
         click1 = {-1, -1};

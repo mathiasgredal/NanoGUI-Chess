@@ -52,6 +52,7 @@ int main()
     {
         nanogui::ref<chess_GUI> chess_board = new chess_GUI(win_size);
 
+        // Do some error handling here. Eg. create folders and download font file online.
         auto fontdata = readFile("./Assets/Fonts/FreeSerif.ttf");
         nvgCreateFontMem(chess_board->nvgContext(), "chess", fontdata.data(), fontdata.size(), 0);
 

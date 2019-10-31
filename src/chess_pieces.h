@@ -43,9 +43,10 @@ public:
     Chess_Color color;
     const char* iconLetter{};
     int piece_Value{};
+    bool initialMove = true;
 
     virtual void RegisterMove(Move mv){
-
+        initialMove = false;
     };
 
     virtual vector<Move> ValidMoves(Board &board);
@@ -61,32 +62,39 @@ public:
     Board(vector<vector<Chess_Piece*>> pieces);
     Board(const Board& rhs);
 
+    // Destructor
     ~Board();
 
     // Normal chess layout
     static vector<vector<Chess_Piece*>> Default_Board();
 
-    void Add_Piece_To_Board(Chess_Piece* piece, int row, int col);
+    // Board functions
     Chess_Piece* Get_Piece(int row, int col);
-
+    Chess_Piece *GetKing(Chess_Color color);
     vector<Chess_Piece*> GetPiecesOfColor(Chess_Color color);
     void GetLocation(Chess_Piece* piece, int& row, int& col);
+    void Move_Piece(Move mv);
     int GetBoardScore();
-    vector<Move> AllPossibleMoves();
 
+    // Move functions
     vector<Move> ValidMoves(int row, int col);
     bool ValidMove(Move usermove);
-    void Move_Piece(Move mv);
 
+    // Endgame functions
+    bool IsAttacked(int row, int col);
+    bool IsCheck();
+    bool IsCheckMate();
+    //bool IsStalemate();
 
-    int board_size{};
-    int s_size{};
+    // Member variables
     vector<vector<Chess_Piece*>> chess_pieces;
     Chess_Color currentPlayer = Chess_Color::White;
 
-
-    // This is neccecery
+    // Extra variables
     Chess_Piece* emptyPiece;
+    int board_size{};
+    int s_size{};
+
 };
 
 static bool IsOccupiedBlock(int row, int col, Board& board)
@@ -199,7 +207,7 @@ public:
     King(int  /*_row*/, int  /*_col*/, Chess_Color _color)
     {
         chess_type = Chess_Type::King;
-        piece_Value = 150;
+        piece_Value = 150000;
 
         if(_color == Chess_Color::White)
             iconLetter = "♔";
@@ -257,6 +265,37 @@ public:
             else
                 ++it;
         }
+
+
+
+        /*
+         Castling requirements:
+             1. Rook and king is in initial move and on first rank
+             2. No pieces between king and rook
+             3. King is not in check
+             4. The king does not pass through a square that is attacked
+        */
+
+        if(initialMove)
+        {
+            // Does king side rook exist
+            // Is king side rook on inital move
+            // Are there any pieces between king and rook
+            // Are the squares that the king moves from, through and into under attack
+
+            // Check that there are no pieces between king and rook
+
+
+            // King side castling
+
+            // Queen side castling
+
+            //possibleMoves.emplace_back(row, col, row, col+2);
+            //possibleMoves.emplace_back(row, col, row, col-2);
+        }
+
+
+
 
         return possibleMoves;
     }
@@ -635,11 +674,6 @@ public:
         return new Pawn(*this);
     }
 
-    void RegisterMove(Move  /*mv*/) override
-    {
-        initialMove = false;
-    }
-
     vector<Move> ValidMoves(Board &board) override
     {
         // Get coordinates
@@ -670,8 +704,6 @@ public:
         return possibleMoves;
     }
 
-private:
-    bool initialMove = true;
 };
 
 class Empty : public Chess_Piece

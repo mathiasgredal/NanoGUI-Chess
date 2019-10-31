@@ -52,13 +52,8 @@ int Board::GetBoardScore()
                 sum += (piece->color != currentPlayer)? piece->piece_Value : piece->piece_Value*-1;
         }
     }
-    cout << "Board Evaluation: " << sum << endl;
+    //cout << "Board Evaluation: " << sum << endl;
     return sum;
-}
-
-vector<Move> Board::AllPossibleMoves()
-{
-    return {};
 }
 
 vector<Chess_Piece*> Board::GetPiecesOfColor(Chess_Color color)
@@ -108,11 +103,6 @@ vector<vector<Chess_Piece*>> Board::Default_Board()
     return default_pieces;
 }
 
-void Board::Add_Piece_To_Board(Chess_Piece* piece, int row, int col)
-{
-    chess_pieces[row][col] = piece;
-}
-
 Chess_Piece* Board::Get_Piece(int row, int col)
 {
     if(row < chess_pieces.size() && col < chess_pieces.size() && chess_pieces[row][col])
@@ -123,6 +113,8 @@ Chess_Piece* Board::Get_Piece(int row, int col)
 
 void Board::Move_Piece(Move mv)
 {
+    bool castlingMove = (Get_Piece(mv.r1, mv.c1)->chess_type == Chess_Type::King && abs(mv.c1-mv.c2) > 1);
+
     // TODO: This method is doing very dangerous things, can potentially crash the program
     chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
 
@@ -130,17 +122,37 @@ void Board::Move_Piece(Move mv)
     chess_pieces[mv.r2][mv.c2] = chess_pieces[mv.r1][mv.c1];
     chess_pieces[mv.r1][mv.c1] = nullptr;
 
+
+    if(castlingMove && mv.c1 < mv.c2) // King side castling
+    {
+        chess_pieces[mv.r1][7]->RegisterMove(mv);
+        chess_pieces[mv.r1][mv.c2-1] = chess_pieces[mv.r1][7];
+        chess_pieces[mv.r1][7] = nullptr;
+    }
+    if(castlingMove && mv.c1 > mv.c2)
+    {
+        // Queen side castling
+        chess_pieces[mv.r1][0]->RegisterMove(mv);
+        chess_pieces[mv.r1][mv.c2+1] = chess_pieces[mv.r1][0];
+        chess_pieces[mv.r1][0] = nullptr;
+    }
+
+
+    // Switch rounds
     if(currentPlayer == Chess_Color::White)
         currentPlayer = Chess_Color::Black;
     else
         currentPlayer = Chess_Color::White;
+
+
 }
+
 
 void Board::GetLocation(Chess_Piece* piece, int& row, int& col)
 {
     for (int r = 0; r < chess_pieces.size(); r++) {
         for (int c = 0; c < chess_pieces[r].size(); c++) {
-            if(chess_pieces[r][c] == piece)
+            if(Get_Piece(r, c) == piece)
             {
                 row = r;
                 col = c;
@@ -218,4 +230,69 @@ bool Board::ValidMove(Move usermove)
     }
 
     return false;
+}
+
+Chess_Piece* Board::GetKing(Chess_Color color)
+{
+    // Calculate if player is in check
+    vector<Chess_Piece*> all_pieces = GetPiecesOfColor(currentPlayer);
+
+    for (auto& piece : all_pieces) {
+        if(piece->chess_type == Chess_Type::King)
+        {
+            return piece;
+        }
+    }
+
+    return emptyPiece;
+}
+
+bool Board::IsAttacked(int row, int col)
+{
+    if(currentPlayer == Chess_Color::Empty)
+        return false;
+
+    Chess_Color enemyColor = (currentPlayer == Chess_Color::White)? Chess_Color::Black : Chess_Color::White;
+
+    // Loop all enemy moves, if any of them reach the king, then he is in check
+    vector<Chess_Piece*> enemyPieces = GetPiecesOfColor(enemyColor);
+
+    for (auto& enemypiece : enemyPieces) {
+        vector<Move> enemyMoves = enemypiece->ValidMoves(*this);
+
+        for (auto& enemyMove : enemyMoves) {
+            if(enemyMove.r2 == row && enemyMove.c2 == col)
+            {
+                return true;
+            }
+        }
+    }
+}
+
+bool Board::IsCheck()
+{
+    Chess_Piece* kingPiece = GetKing(currentPlayer);
+
+    int row, col;
+    GetLocation(kingPiece, row, col);
+
+    return IsAttacked(row, col);
+}
+
+bool Board::IsCheckMate(){
+    bool isCheckMate = true;
+
+    // Can only be checkmate if king is in check
+    if(!IsCheck())
+        isCheckMate = false;
+
+    // Here we just check whether we can do any moves.
+    for (int r = 0; r < chess_pieces.size(); r++) {
+        for (int c = 0; c < chess_pieces[r].size(); c++) {
+                if(ValidMoves(r, c).size() != 0)
+                    isCheckMate = false;
+        }
+    }
+
+    return isCheckMate;
 }
