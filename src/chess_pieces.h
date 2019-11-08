@@ -81,7 +81,7 @@ public:
     bool ValidMove(Move usermove);
 
     // Endgame functions
-    bool IsAttacked(int row, int col);
+    bool IsAttacked(int row, int col, Chess_Color color);
     bool IsCheck();
     bool IsCheckMate();
     //bool IsStalemate();
@@ -275,13 +275,29 @@ public:
              3. King is not in check
              4. The king does not pass through a square that is attacked
         */
-
+/*
         if(initialMove)
         {
-            // Does king side rook exist
-            // Is king side rook on inital move
-            // Are there any pieces between king and rook
-            // Are the squares that the king moves from, through and into under attack
+            // Does kingside rook exist && Is king side rook on inital move
+            Chess_Piece* kingsideRook = board.Get_Piece(row, 7);
+            if(kingsideRook->chess_type == Chess_Type::Rook && kingsideRook->initialMove)
+            {
+                bool kingsidecastle = true;
+
+                // Are there any pieces between king and rook
+                for(int i = col+1; i < 7; i++)
+                    if(board.Get_Piece(row, i)->chess_type != Chess_Type::EMPTY)
+                        kingsidecastle = false;
+
+                // Are any pieces the king moves through attacked
+                if(board.IsAttacked(row, col+1, Chess_Color::White) || board.IsAttacked(row, col+2, Chess_Color::White))
+                    kingsidecastle = false;
+
+                if(kingsidecastle)
+                    possibleMoves.emplace_back(row, col, row, col+2);
+            }
+
+
 
             // Check that there are no pieces between king and rook
 
@@ -293,9 +309,7 @@ public:
             //possibleMoves.emplace_back(row, col, row, col+2);
             //possibleMoves.emplace_back(row, col, row, col-2);
         }
-
-
-
+*/
 
         return possibleMoves;
     }
@@ -501,9 +515,7 @@ public:
                 break;
 
             if(!IsOccupiedBlock(row-x, col-x, board) )
-            {
                 possibleMoves.emplace_back(row, col, row-x, col-x);
-            }
             else if(board.Get_Piece(row-x, col-x)->color != color){
                 possibleMoves.emplace_back(row, col, row-x, col-x);
                 break;
@@ -519,9 +531,7 @@ public:
                 break;
 
             if(!IsOccupiedBlock(row-x, col+x, board) )
-            {
                 possibleMoves.emplace_back(row, col, row-x, col+x);
-            }
             else if(board.Get_Piece(row-x, col+x)->color != color){
                 possibleMoves.emplace_back(row, col, row-x, col+x);
                 break;
@@ -537,9 +547,7 @@ public:
                 break;
 
             if(!IsOccupiedBlock(row+x, col-x, board) )
-            {
                 possibleMoves.emplace_back(row, col, row+x, col-x);
-            }
             else if(board.Get_Piece(row+x, col-x)->color != color){
                 possibleMoves.emplace_back(row, col, row+x, col-x);
                 break;

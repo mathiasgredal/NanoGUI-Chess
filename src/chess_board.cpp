@@ -247,26 +247,32 @@ Chess_Piece* Board::GetKing(Chess_Color color)
     return emptyPiece;
 }
 
-bool Board::IsAttacked(int row, int col)
+bool Board::IsAttacked(int row, int col, Chess_Color color)
 {
     if(currentPlayer == Chess_Color::Empty)
         return false;
 
-    Chess_Color enemyColor = (currentPlayer == Chess_Color::White)? Chess_Color::Black : Chess_Color::White;
+    Chess_Color enemyColor = (color == Chess_Color::White)? Chess_Color::Black : Chess_Color::White;
+
 
     // Loop all enemy moves, if any of them reach the king, then he is in check
     vector<Chess_Piece*> enemyPieces = GetPiecesOfColor(enemyColor);
 
     for (auto& enemypiece : enemyPieces) {
-        vector<Move> enemyMoves = enemypiece->ValidMoves(*this);
+        if(enemypiece->chess_type != Chess_Type::King)
+        {
+            vector<Move> enemyMoves = enemypiece->ValidMoves(*this);
 
-        for (auto& enemyMove : enemyMoves) {
-            if(enemyMove.r2 == row && enemyMove.c2 == col)
-            {
-                return true;
+            for (auto& enemyMove : enemyMoves) {
+                if(enemyMove.r2 == row && enemyMove.c2 == col)
+                {
+                    return true;
+                }
             }
         }
     }
+
+    return false;
 }
 
 bool Board::IsCheck()
@@ -276,7 +282,7 @@ bool Board::IsCheck()
     int row, col;
     GetLocation(kingPiece, row, col);
 
-    return IsAttacked(row, col);
+    return IsAttacked(row, col, currentPlayer);
 }
 
 bool Board::IsCheckMate(){

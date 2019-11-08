@@ -355,7 +355,18 @@ void chess_GUI::HandleInGame(const Vector2i &p)
                 }
 
 
+
+
             }
+
+            int row, col;
+            board->GetLocation(board->GetKing(board->currentPlayer), row, col);
+
+            if(board->IsAttacked(row, col+1, Chess_Color::White))
+                std::cout << "is attacked 1" << std::endl;
+
+            if(board->IsAttacked(row, col+2, Chess_Color::White))
+                std::cout << "is attacked 2" << std::endl;
 
         }
 

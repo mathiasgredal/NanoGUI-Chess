@@ -115,7 +115,7 @@ int min(int val1, int val2)
         return val2;
 }
 
-int minimax(int depth, Board &board, bool color)
+int minimax(int depth, Board &board, bool color, int alpha, int beta)
 {
     // Another check rather than depth, is to check if the game has ended(stalemate, checkmate)
     if (depth == 0)
@@ -124,13 +124,18 @@ int minimax(int depth, Board &board, bool color)
     int value = -99999999;
 
     auto newGameMoves = allPossibleMoves(board);
+
     for (Move gameMove :  allPossibleMoves(board)) {
         Board newboard = board;
         newboard.Move_Piece(gameMove);
         if(board.IsCheckMate())
             value = 100000000;
         else
-            value = max(value, -minimax(depth - 1, newboard, -color));
+            value = max(value, -minimax(depth - 1, newboard, -color, -beta, -alpha));
+
+        alpha = max(alpha, value);
+        if(alpha >= beta)
+            break;
     }
 
     return value;
@@ -155,7 +160,7 @@ Move Computer::GetMiniMaxMove(Board &board)
         Board copyBoard = board;
         copyBoard.Move_Piece(availMove);
 
-        int value = minimax(depth, copyBoard, -1);
+        int value = minimax(depth, copyBoard, -1, -10000000, 10000000);
         cout << value << endl;
 
         if(value <= bestMoveScore) {
