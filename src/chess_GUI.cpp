@@ -443,35 +443,5 @@ void chess_GUI::HandleCredits(const Vector2i &p)
 }
 
 
-// Handle events (e.g. mouse clicking)
-/*int chess_GUI::handle(int event)
-{
-    // After 2 clicks move the piece
-    if (event == FL_PUSH)
-    {
-        switch (ui_state)
-        {
-        case UI_STATE::MAIN_MENU:
-            HandleMainMenu(event);
-            break;
-        case UI_STATE::SETTINGS:
-            HandleSettings(event);
-            break;
-        case UI_STATE::IN_GAME:
-            HandleInGame(event);
-            break;
-        case UI_STATE::PAUSED:
-            break;
-        case UI_STATE::GAMEOVER:
-            break;
-        }
-
-        return 1;
-    }
-
-    return Fl_Widget::handle(event);
-
-    return 0;
-}*/
 
 

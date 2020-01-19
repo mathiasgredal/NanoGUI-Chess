@@ -156,7 +156,7 @@ public:
         vector<Move> possibleMoves = {};
 
         // Positive horisontal move
-        for(int x = col+1; x < 8; x++)
+        for(int x = col+1; x < 8; ++x)
         {
             if(board.Get_Piece(row,x)->color == color)
                 break;

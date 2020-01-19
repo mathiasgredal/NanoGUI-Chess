@@ -3,6 +3,10 @@ project (Skak)
 
 set (CMAKE_CXX_STANDARD 17)
 
+# Optimize code in release mode
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 
 # Copy DLL to executable dir
@@ -25,20 +29,25 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 include_directories(libs/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 
+# Here we add all the code to be compiled
 add_executable(chess
 	main.cpp
 	chess_GUI.cpp chess_GUI.h
 	chess_pieces.cpp chess_pieces.h chess_board.cpp
 	computer.cpp computer.h)
 
-# Important for reasons
+# Important for 3rd party libs
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")
 
 # Lastly, additional libraries may have been built for you.  In addition to linking
 # against NanoGUI, we need to link against those as well.
 target_link_libraries(chess nanogui ${NANOGUI_EXTRA_LIBS})
 
-file(COPY Assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Now we need to compile the font file into the executable,
+# with the following library: https://github.com/vector-of-bool/cmrc
+include(CMakeRC.cmake)
+cmrc_add_resource_library(Assets "./Assets/FreeSerif.ttf")
+target_link_libraries(chess PRIVATE Assets)
 
 
 
