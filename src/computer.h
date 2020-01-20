@@ -3,12 +3,12 @@
 
 #include "chess_pieces.h"
 
-class Computer
-{
+class Computer {
 public:
     static Move GetRandomMove(Board& board);
     static Move GetSimpleMove(Board& board);
     static Move GetMiniMaxMove(Board& board);
+
 private:
     Computer() {}
 };

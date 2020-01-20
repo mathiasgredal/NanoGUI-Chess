@@ -30,7 +30,7 @@ include_directories(libs/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 
 # Here we add all the code to be compiled
-add_executable(chess
+add_executable(chess MACOSX_BUNDLE WIN32
 	main.cpp
 	chess_GUI.cpp chess_GUI.h
 	chess_pieces.cpp chess_pieces.h chess_board.cpp
@@ -48,6 +48,9 @@ target_link_libraries(chess nanogui ${NANOGUI_EXTRA_LIBS})
 include(CMakeRC.cmake)
 cmrc_add_resource_library(Assets "./Assets/FreeSerif.ttf")
 target_link_libraries(chess PRIVATE Assets)
+
+
+
 
 
 
