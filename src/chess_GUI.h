@@ -42,7 +42,7 @@ private:
     nanogui::ref<Window> gameSelectWindow;
 
     // Game logic
-    Board* board;
+    Board board = Board::Default_Board();
 
     Player_Type WHITE;
     Player_Type BLACK;

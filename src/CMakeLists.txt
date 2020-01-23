@@ -34,7 +34,8 @@ add_executable(chess MACOSX_BUNDLE WIN32
 	main.cpp
 	chess_GUI.cpp chess_GUI.h
 	chess_pieces.cpp chess_pieces.h chess_board.cpp
-	computer.cpp computer.h)
+	computer.cpp computer.h
+	movegenerator.cpp movegenerator.h)
 
 # Important for 3rd party libs
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")

@@ -1,120 +1,94 @@
 #include <utility>
 
 #include "chess_pieces.h"
+#include "movegenerator.h"
+#include <array>
 
-Board::Board(vector<vector<Chess_Piece*>> pieces)
+Board::Board(array<Chess_Piece, 64> pieces)
 {
     chess_pieces = std::move(pieces);
-
-    emptyPiece = new class Empty();
-}
-
-Board::~Board()
-{
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            if (chess_pieces[row][col] != nullptr) {
-                delete chess_pieces[row][col];
-            }
-        }
-    }
-}
-
-Board::Board(const Board& rhs)
-{
-    //cout << "Board created by deep copy" << endl;
-    board_size = rhs.board_size;
-    s_size = rhs.s_size;
-    currentPlayer = rhs.currentPlayer;
-    chess_pieces = vector(8, vector<Chess_Piece*>(8));
-    emptyPiece = rhs.emptyPiece;
-
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            if (rhs.chess_pieces[row][col] != nullptr) {
-                chess_pieces[row][col] = (*rhs.chess_pieces[row][col]).Clone();
-            }
-        }
-    }
 }
 
 int Board::GetBoardScore()
 {
     float sum = 0;
-    for (auto& row : chess_pieces) {
-        for (auto& piece : row) {
-            if (piece != nullptr)
-                sum += (piece->color != currentPlayer) ? piece->piece_Value : piece->piece_Value * -1;
-        }
+    for (auto& piece : chess_pieces) {
+        sum += (piece.color != currentPlayer) ? ChessPieceValue(piece.chessType) : ChessPieceValue(piece.chessType) * -1;
     }
     //cout << "Board Evaluation: " << sum << endl;
     return sum;
 }
 
-vector<Chess_Piece*> Board::GetPiecesOfColor(Chess_Color color)
+vector<Chess_Piece> Board::GetPiecesOfColor(Chess_Color color)
 {
-    vector<Chess_Piece*> pieces(0);
-    for (auto& row : chess_pieces) {
-        for (auto& piece : row) {
-            if (piece != nullptr && piece->color == color)
-                pieces.push_back(piece);
-        }
+    vector<Chess_Piece> pieces(18);
+
+    for (auto& piece : chess_pieces) {
+        if (piece.color == color)
+            pieces.push_back(piece);
     }
 
+    pieces.shrink_to_fit();
     return pieces;
 }
 
-vector<vector<Chess_Piece*>> Board::Default_Board()
+array<Chess_Piece, 64> Board::Default_Board()
 {
-    vector<vector<Chess_Piece*>> default_pieces(8, vector<Chess_Piece*>(8));
+    array<Chess_Piece, 64> default_pieces;
 
     // Black pieces
-    default_pieces[0][0] = new class Rook(2, 2, Chess_Color::Black);
-    default_pieces[0][1] = new class Knight(2, 2, Chess_Color::Black);
-    default_pieces[0][2] = new class Bishop(2, 2, Chess_Color::Black);
-    default_pieces[0][3] = new class Queen(2, 2, Chess_Color::Black);
-    default_pieces[0][4] = new class King(2, 2, Chess_Color::Black);
-    default_pieces[0][5] = new class Bishop(2, 2, Chess_Color::Black);
-    default_pieces[0][6] = new class Knight(2, 2, Chess_Color::Black);
-    default_pieces[0][7] = new class Rook(2, 2, Chess_Color::Black);
 
-    for (auto& piece : default_pieces[1])
-        piece = new class Pawn(2, 2, Chess_Color::Black);
+    default_pieces[GetChessPieceIndex(0, 0)] = Chess_Piece(0, 0, Chess_Color::Black, Chess_Type::Rook);
+    default_pieces[GetChessPieceIndex(0, 1)] = Chess_Piece(0, 1, Chess_Color::Black, Chess_Type::Knight);
+    default_pieces[GetChessPieceIndex(0, 2)] = Chess_Piece(0, 2, Chess_Color::Black, Chess_Type::Bishop);
+    default_pieces[GetChessPieceIndex(0, 3)] = Chess_Piece(0, 3, Chess_Color::Black, Chess_Type::Queen);
+    default_pieces[GetChessPieceIndex(0, 4)] = Chess_Piece(0, 4, Chess_Color::Black, Chess_Type::King);
+    default_pieces[GetChessPieceIndex(0, 5)] = Chess_Piece(0, 5, Chess_Color::Black, Chess_Type::Bishop);
+    default_pieces[GetChessPieceIndex(0, 6)] = Chess_Piece(0, 6, Chess_Color::Black, Chess_Type::Knight);
+    default_pieces[GetChessPieceIndex(0, 7)] = Chess_Piece(0, 7, Chess_Color::Black, Chess_Type::Rook);
 
-    default_pieces[7][0] = new class Rook(2, 2, Chess_Color::White);
-    default_pieces[7][1] = new class Knight(2, 2, Chess_Color::White);
-    default_pieces[7][2] = new class Bishop(2, 2, Chess_Color::White);
-    default_pieces[7][3] = new class Queen(2, 2, Chess_Color::White);
-    default_pieces[7][4] = new class King(2, 2, Chess_Color::White);
-    default_pieces[7][5] = new class Bishop(2, 2, Chess_Color::White);
-    default_pieces[7][6] = new class Knight(2, 2, Chess_Color::White);
-    default_pieces[7][7] = new class Rook(2, 2, Chess_Color::White);
+    for (u_char i = 0; i < 8; i++)
+        default_pieces[GetChessPieceIndex(1, i)] = Chess_Piece(1, i, Chess_Color::Black, Chess_Type::Pawn);
 
-    for (auto& piece : default_pieces[6])
-        piece = new class Pawn(2, 2, Chess_Color::White);
+    default_pieces[GetChessPieceIndex(7, 0)] = Chess_Piece(7, 0, Chess_Color::White, Chess_Type::Rook);
+    default_pieces[GetChessPieceIndex(7, 1)] = Chess_Piece(7, 1, Chess_Color::White, Chess_Type::Knight);
+    default_pieces[GetChessPieceIndex(7, 2)] = Chess_Piece(7, 2, Chess_Color::White, Chess_Type::Bishop);
+    default_pieces[GetChessPieceIndex(7, 3)] = Chess_Piece(7, 3, Chess_Color::White, Chess_Type::Queen);
+    default_pieces[GetChessPieceIndex(7, 4)] = Chess_Piece(7, 4, Chess_Color::White, Chess_Type::King);
+    default_pieces[GetChessPieceIndex(7, 5)] = Chess_Piece(7, 5, Chess_Color::White, Chess_Type::Bishop);
+    default_pieces[GetChessPieceIndex(7, 6)] = Chess_Piece(7, 6, Chess_Color::White, Chess_Type::Knight);
+    default_pieces[GetChessPieceIndex(7, 7)] = Chess_Piece(7, 7, Chess_Color::White, Chess_Type::Rook);
+
+    for (u_char i = 0; i < 8; i++)
+        default_pieces[GetChessPieceIndex(6, i)] = Chess_Piece(6, i, Chess_Color::White, Chess_Type::Pawn);
 
     return default_pieces;
 }
 
-Chess_Piece* Board::Get_Piece(int row, int col)
+Chess_Piece Board::Get_Piece(u_char row, u_char col)
 {
-    if (row < chess_pieces.size() && col < chess_pieces.size() && chess_pieces[row][col])
-        return chess_pieces[row][col];
+    if (row < 8 && col < 8)
+        return chess_pieces[GetChessPieceIndex(row, col)];
     else
-        return emptyPiece;
+        return Chess_Piece(row, col, Chess_Color::Empty, Chess_Type::EMPTY);
 }
 
 void Board::Move_Piece(Move mv)
 {
-    bool castlingMove = (Get_Piece(mv.r1, mv.c1)->chess_type == Chess_Type::King && abs(mv.c1 - mv.c2) > 1);
+    //bool castlingMove = (Get_Piece(mv.r1, mv.c1)->chess_type == Chess_Type::King && abs(mv.c1 - mv.c2) > 1);
 
     // TODO: This method is doing very dangerous things, can potentially crash the program
-    chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
+    //chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
+    lastMove = chess_pieces;
 
-    delete chess_pieces[mv.r2][mv.c2];
-    chess_pieces[mv.r2][mv.c2] = chess_pieces[mv.r1][mv.c1];
-    chess_pieces[mv.r1][mv.c1] = nullptr;
+    chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)] = chess_pieces[GetChessPieceIndex(mv.r1, mv.c1)];
+    chess_pieces[GetChessPieceIndex(mv.r1, mv.c1)] = Chess_Piece(mv.r1, mv.c1, Chess_Color::Empty, Chess_Type::EMPTY);
 
+    chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].row = mv.r2;
+    chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].col = mv.c2;
+    chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].initialMove = false;
+
+    /*
     if (castlingMove && mv.c1 < mv.c2) // King side castling
     {
         chess_pieces[mv.r1][7]->RegisterMove(mv);
@@ -126,7 +100,7 @@ void Board::Move_Piece(Move mv)
         chess_pieces[mv.r1][0]->RegisterMove(mv);
         chess_pieces[mv.r1][mv.c2 + 1] = chess_pieces[mv.r1][0];
         chess_pieces[mv.r1][0] = nullptr;
-    }
+    }*/
 
     // Switch rounds
     if (currentPlayer == Chess_Color::White)
@@ -135,43 +109,54 @@ void Board::Move_Piece(Move mv)
         currentPlayer = Chess_Color::White;
 }
 
-void Board::GetLocation(Chess_Piece* piece, int& row, int& col)
+void Board::UndoMove()
 {
-    for (int r = 0; r < chess_pieces.size(); r++) {
-        for (int c = 0; c < chess_pieces[r].size(); c++) {
-            if (Get_Piece(r, c) == piece) {
-                row = r;
-                col = c;
-                return;
-            }
-        }
+    chess_pieces = lastMove;
+}
+
+vector<Move> PieceValidMoves(Chess_Piece piece, Board& board)
+{
+    switch (piece.chessType) {
+    case King:
+        return MoveGenerator::KingMoves(board, piece);
+    case Queen:
+        return MoveGenerator::QueenMoves(board, piece);
+    case Bishop:
+        return MoveGenerator::BishopMoves(board, piece);
+    case Knight:
+        return MoveGenerator::KnightMoves(board, piece);
+    case Rook:
+        return MoveGenerator::RookMoves(board, piece);
+    case Pawn:
+        return MoveGenerator::PawnMoves(board, piece);
+    case EMPTY:
+        return {};
     }
 }
 
-vector<Move> Board::ValidMoves(int row, int col)
+vector<Move> Board::ValidMoves(u_char row, u_char col)
 {
 
     // Get Piece
-    Chess_Piece* selectedPiece = Get_Piece(row, col);
+    Chess_Piece selectedPiece = Get_Piece(row, col);
 
     // Check if the piece is of the correct color
-    if (selectedPiece->color != this->currentPlayer)
+    if (selectedPiece.color != this->currentPlayer)
         return {};
 
     Chess_Color opponentPlayer = (this->currentPlayer == Chess_Color::White) ? Chess_Color::Black : Chess_Color::White;
 
-    vector<Move> validmoves = selectedPiece->ValidMoves(*this);
+    vector<Move> validmoves = PieceValidMoves(selectedPiece, *this);
 
     // remove invalid moves
     auto it = validmoves.begin();
-
     while (it != validmoves.end()) {
         bool invalidMove = false;
         // Get Piece
-        Chess_Piece* destinationPiece = Get_Piece(it->r2, it->c2);
+        Chess_Piece destinationPiece = Get_Piece(it->r2, it->c2);
 
         // We are not allowed to attack a king
-        if (destinationPiece->chess_type == Chess_Type::King)
+        if (destinationPiece.chessType == Chess_Type::King)
             invalidMove = true;
 
         // We are not allowed to make a move which exposes the king
@@ -179,8 +164,8 @@ vector<Move> Board::ValidMoves(int row, int col)
 
         newboard.Move_Piece(*it);
         for (auto& piece : newboard.GetPiecesOfColor(opponentPlayer)) {
-            for (auto& possibleMove : piece->ValidMoves(newboard)) {
-                if (newboard.Get_Piece(possibleMove.r2, possibleMove.c2)->chess_type == Chess_Type::King)
+            for (auto& possibleMove : PieceValidMoves(piece, newboard)) {
+                if (newboard.Get_Piece(possibleMove.r2, possibleMove.c2).chessType == Chess_Type::King)
                     invalidMove = true;
             }
         }
@@ -213,21 +198,21 @@ bool Board::ValidMove(Move usermove)
     return false;
 }
 
-Chess_Piece* Board::GetKing(Chess_Color color)
+Chess_Piece Board::GetKing(Chess_Color color)
 {
     // Calculate if player is in check
-    vector<Chess_Piece*> all_pieces = GetPiecesOfColor(currentPlayer);
+    vector<Chess_Piece> all_pieces = GetPiecesOfColor(currentPlayer);
 
     for (auto& piece : all_pieces) {
-        if (piece->chess_type == Chess_Type::King) {
+        if (piece.chessType == Chess_Type::King) {
             return piece;
         }
     }
 
-    return emptyPiece;
+    return Chess_Piece(0, 0, Chess_Color::Empty, Chess_Type::EMPTY);
 }
 
-bool Board::IsAttacked(int row, int col, Chess_Color color)
+bool Board::IsAttacked(u_char row, u_char col, Chess_Color color)
 {
     if (currentPlayer == Chess_Color::Empty)
         return false;
@@ -235,11 +220,11 @@ bool Board::IsAttacked(int row, int col, Chess_Color color)
     Chess_Color enemyColor = (color == Chess_Color::White) ? Chess_Color::Black : Chess_Color::White;
 
     // Loop all enemy moves, if any of them reach the king, then he is in check
-    vector<Chess_Piece*> enemyPieces = GetPiecesOfColor(enemyColor);
+    vector<Chess_Piece> enemyPieces = GetPiecesOfColor(enemyColor);
 
     for (auto& enemypiece : enemyPieces) {
-        if (enemypiece->chess_type != Chess_Type::King) {
-            vector<Move> enemyMoves = enemypiece->ValidMoves(*this);
+        if (enemypiece.chessType != Chess_Type::King) {
+            vector<Move> enemyMoves = PieceValidMoves(enemypiece, *this);
 
             for (auto& enemyMove : enemyMoves) {
                 if (enemyMove.r2 == row && enemyMove.c2 == col) {
@@ -254,12 +239,9 @@ bool Board::IsAttacked(int row, int col, Chess_Color color)
 
 bool Board::IsCheck()
 {
-    Chess_Piece* kingPiece = GetKing(currentPlayer);
+    Chess_Piece kingPiece = GetKing(currentPlayer);
 
-    int row, col;
-    GetLocation(kingPiece, row, col);
-
-    return IsAttacked(row, col, currentPlayer);
+    return IsAttacked(kingPiece.row, kingPiece.col, currentPlayer);
 }
 
 bool Board::IsCheckMate()
@@ -267,15 +249,18 @@ bool Board::IsCheckMate()
     bool isCheckMate = true;
 
     // Can only be checkmate if king is in check
-    if (!IsCheck())
+    if (!IsCheck()) {
         isCheckMate = false;
+        return isCheckMate;
+    }
 
     // Here we just check whether we can do any moves.
-    for (int r = 0; r < chess_pieces.size(); r++) {
-        for (int c = 0; c < chess_pieces[r].size(); c++) {
-            if (ValidMoves(r, c).size() != 0)
-                isCheckMate = false;
-        }
+    for (u_char i = 0; i < chess_pieces.size(); i++) {
+        const u_char c = i % 8;
+        const u_char r = (i - c) / 8;
+
+        if (ValidMoves(r, c).size() != 0)
+            isCheckMate = false;
     }
 
     return isCheckMate;
