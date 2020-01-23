@@ -21,7 +21,7 @@ CMRC_DECLARE(Assets);
 void Start()
 {
     srand((unsigned)time(0));
-    int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
+    const int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
 
     auto chessfont = cmrc::Assets::get_filesystem().open("Assets/FreeSerif.ttf");
     std::vector<unsigned char> chessFontData(chessfont.begin(), chessfont.end());

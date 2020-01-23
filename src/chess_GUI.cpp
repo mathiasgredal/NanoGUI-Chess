@@ -77,9 +77,9 @@ chess_GUI::chess_GUI(int W)
 
 void chess_GUI::StartGame(Player_Type white, Player_Type black)
 {
-    board = new Board(Board::Default_Board());
-    board->board_size = board_size;
-    board->s_size = s_size;
+    board = Board(Board::Default_Board());
+    board.board_size = board_size;
+    board.s_size = s_size;
 
     WHITE = white;
     BLACK = black;
@@ -162,15 +162,15 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
     nvgFillColor(nvgContext(), nvgRGBA(0, 0, 0, 255)); // Text color
     nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 
-    for (int r = 0; r < 8; r++) {
-        for (int c = 0; c < 8; c++) {
+    for (u_char r = 0; r < 8; r++) {
+        for (u_char c = 0; c < 8; c++) {
             nvgText(nvgContext(), s_size * (c + 1.5), s_size * (r + 1.5),
-                board->Get_Piece(r, c)->iconLetter, nullptr);
+                ChessPieceIcon(board.Get_Piece(r, c).chessType, board.Get_Piece(r, c).color), nullptr);
         }
     }
 
     // After first click, mark it in upper left corner, and draw possible moves
-    if (click1.x() >= 0 && board->Get_Piece(click1.x(), click1.y())->color == board->currentPlayer) {
+    if (click1.x() >= 0 && board.Get_Piece(click1.x(), click1.y()).color == board.currentPlayer) {
 
         nvgBeginPath(nvgContext());
         nvgRect(nvgContext(), s_size * 0.25, s_size * 0.25, s_size * 0.5,
@@ -178,7 +178,7 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
         nvgFillColor(nvgContext(), Color(0, 255, 0, 255)); // Text color
         nvgFill(nvgContext());
 
-        vector<Move> possibleMoves = board->ValidMoves(click1.x(), click1.y());
+        vector<Move> possibleMoves = board.ValidMoves(click1.x(), click1.y());
 
         for (auto& possibleMove : possibleMoves) {
             float r = s_size * 0.16;
@@ -312,48 +312,45 @@ void chess_GUI::HandleInGame(const Vector2i& p)
     if (click.x() < 0 || click.x() >= 8 || click.y() < 0 || click.y() >= 8)
         return;
 
-    if (click1.x() < 0 && board->Get_Piece(click.x(), click.y())->chess_type != Chess_Type::EMPTY) {
+    if (click1.x() < 0 && board.Get_Piece(click.x(), click.y()).chessType != Chess_Type::EMPTY) {
         // This is the first click
         click1 = click;
 
         // Check if player selected opponents piece
-        if (board->Get_Piece(click.x(), click.y())->color != board->currentPlayer)
+        if (board.Get_Piece(click.x(), click.y()).color != board.currentPlayer)
             click1 = { -1, -1 };
     } else {
         Move tmp = Move(click1.x(), click1.y(), click.x(), click.y());
 
-        if (board->ValidMove(tmp)) {
-            board->Move_Piece(tmp);
+        if (board.ValidMove(tmp)) {
+            board.Move_Piece(tmp);
             // update_piece(tmp); // Computer move
-            if (board->IsCheck()) {
+            if (board.IsCheck()) {
                 cout << "Check" << endl;
             }
-            if (board->IsCheckMate()) {
+            if (board.IsCheckMate()) {
                 cout << "Checkmate" << endl;
                 pausedWindow->setVisible(true);
             }
 
             drawAll();
 
-            if (board->currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER || board->currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER) {
-                board->Move_Piece(Computer::GetMiniMaxMove(*board));
+            if (board.currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER || board.currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER) {
+                board.Move_Piece(Computer::GetMiniMaxMove(board));
                 // update_piece(tmp); // Computer move
-                if (board->IsCheck()) {
+                if (board.IsCheck()) {
                     cout << "Check" << endl;
                 }
-                if (board->IsCheckMate()) {
+                if (board.IsCheckMate()) {
                     cout << "Checkmate" << endl;
                     pausedWindow->setVisible(true);
                 }
             }
 
-            int row, col;
-            board->GetLocation(board->GetKing(board->currentPlayer), row, col);
-
-            if (board->IsAttacked(row, col + 1, Chess_Color::White))
+            if (board.IsAttacked(board.GetKing(board.currentPlayer).row, board.GetKing(board.currentPlayer).col + 1, Chess_Color::White))
                 std::cout << "is attacked 1" << std::endl;
 
-            if (board->IsAttacked(row, col + 2, Chess_Color::White))
+            if (board.IsAttacked(board.GetKing(board.currentPlayer).row, board.GetKing(board.currentPlayer).col + 2, Chess_Color::White))
                 std::cout << "is attacked 2" << std::endl;
         }
 
