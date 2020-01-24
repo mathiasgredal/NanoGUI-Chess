@@ -116,7 +116,7 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
 {
     // Draw numbers and letters outside board
     nvgBeginPath(nvgContext());
-    nvgFontSize(nvgContext(), s_size);
+    nvgFontSize(nvgContext(), s_size * 0.5);
     nvgFontFace(nvgContext(), "sans");
     nvgFillColor(nvgContext(), nvgRGBA(200, 200, 200, 255)); // Text color
     nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
@@ -181,7 +181,7 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
         vector<Move> possibleMoves = board.ValidMoves(click1.x(), click1.y());
 
         for (auto& possibleMove : possibleMoves) {
-            float r = s_size * 0.16;
+            float r = s_size * 0.1;
 
             float x = s_size * (possibleMove.c2 + 1) + s_size * 0.5;
             float y = s_size * (possibleMove.r2 + 1) + s_size * 0.5;

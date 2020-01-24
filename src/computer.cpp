@@ -115,7 +115,7 @@ int minimax(int depth, Board& board, bool color, int alpha, int beta)
     // Another check rather than depth, is to check if the game has
     // ended(stalemate, checkmate)
     if (depth == 0)
-        return evaluateBoard(board) * (color); // when using depths of even number remove sign
+        return evaluateBoard(board) * (-color); // when using depths of even number remove sign
     else if (board.IsCheckMate())
         return 1000000 * color;
 
@@ -170,7 +170,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     start = std::clock();
 
     // For some reason this has to be even numbers
-    const int depth = 4;
+    const int depth = 3;
 
     // Whitepieces are positive, and black negative. Hence white is the maximising
     // player

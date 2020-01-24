@@ -88,6 +88,16 @@ void Board::Move_Piece(Move mv)
     chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].col = mv.c2;
     chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].initialMove = false;
 
+    if (chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].chessType == Chess_Type::Pawn) {
+        if (chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].color == Chess_Color::Black && mv.r2 == 7) {
+            chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].chessType = Chess_Type::Queen;
+        }
+
+        if (chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].color == Chess_Color::White && mv.r2 == 0) {
+            chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)].chessType = Chess_Type::Queen;
+        }
+    }
+
     /*
     if (castlingMove && mv.c1 < mv.c2) // King side castling
     {
