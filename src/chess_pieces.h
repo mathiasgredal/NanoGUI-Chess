@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <sstream>
 #include <stack>
 #include <vector>
 
@@ -31,6 +32,7 @@ public:
 
     // Metode til at konvertere til vektor
     vector<u_char> to_vector();
+    string to_string();
 
     void Print_Move();
 

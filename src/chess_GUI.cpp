@@ -90,6 +90,12 @@ void chess_GUI::StartGame(Player_Type white, Player_Type black)
 
 void chess_GUI::draw(NVGcontext* ctx)
 {
+    /*auto event = client.PollEvents();
+
+    if (event != "") {
+        lastEvent = event;
+    }*/
+
     switch (ui_state) {
     case UI_STATE::MAIN_MENU:
         DrawMainMenu(ctx);
@@ -272,7 +278,6 @@ bool chess_GUI::keyboardEvent(int key, int /*scancode*/, int action,
         else
             ui_state = UI_STATE::IN_GAME;
     }
-    cout << "you clicked " << key << endl;
 }
 
 bool chess_GUI::mouseButtonEvent(const Vector2i& p, int button, bool down,
@@ -323,6 +328,7 @@ void chess_GUI::HandleInGame(const Vector2i& p)
         Move tmp = Move(click1.x(), click1.y(), click.x(), click.y());
 
         if (board.ValidMove(tmp)) {
+            //client.SendMoveToPeer(tmp, board.currentPlayer);
             board.Move_Piece(tmp);
             // update_piece(tmp); // Computer move
             if (board.IsCheck()) {
@@ -334,6 +340,19 @@ void chess_GUI::HandleInGame(const Vector2i& p)
             }
 
             drawAll();
+
+            /*lastEvent = "";
+
+            while (lastEvent == "") {
+                lastEvent = client.PollEvents();
+            }
+
+            auto r1 = lastEvent.at(3) - 'A';
+            auto c1 = 8 - lastEvent.at(4) - '0';
+            auto r2 = lastEvent.at(5) - 'A';
+            auto c2 = 8 - lastEvent.at(6) - '0';
+
+            board.Move_Piece(Move(c1, r1, c2, r2));*/
 
             if (board.currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER || board.currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER) {
                 board.Move_Piece(Computer::GetMiniMaxMove(board));
@@ -398,6 +417,7 @@ void chess_GUI::HandleMainMenu(const Vector2i& p)
                 ui_state = UI_STATE::SETTINGS;
                 return;
             case 2: // Credits
+                client.ConnectToServer();
                 return;
             case 3: // Quit
                 exit(1);

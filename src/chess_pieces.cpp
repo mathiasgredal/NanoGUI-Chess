@@ -22,6 +22,14 @@ vector<u_char> Move::to_vector()
     return vector<u_char>({ r1, c1, r2, c2 });
 }
 
+string Move::to_string()
+{
+    std::ostringstream stream;
+    stream << char('A' + c1) << 8 - r1 << char('A' + c2) << 8 - r2 << endl;
+
+    return stream.str().c_str();
+}
+
 Chess_Piece::Chess_Piece(u_char _row, u_char _col, Chess_Color _color, Chess_Type _chessType, bool _initialMove)
 {
     row = _row;

@@ -7,6 +7,8 @@
 
 #include "chess_pieces.h"
 #include "computer.h"
+#include "multiplayerclient.h"
+#include "multiplayerserver.h"
 
 using namespace nanogui;
 using namespace std;
@@ -32,6 +34,9 @@ public:
 
     bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
     bool mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers) override;
+
+    MultiplayerClient client = MultiplayerClient();
+    string lastEvent = "";
 
 private:
     UI_STATE ui_state = UI_STATE::MAIN_MENU;

@@ -176,8 +176,6 @@ Move Computer::GetMiniMaxMove(Board& board)
     // player
     const bool color = (board.currentPlayer == Chess_Color::White) ? 1 : -1;
 
-    cout << evaluateBoard(board) << endl;
-
     int bestMoveScore = INT_MAX;
     Move bestMove = Move(0, 0, 0, 0);
 
@@ -191,7 +189,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     int totalMoves = availableMoves.size();
     array<vector<Move>, threads_to_use> movesPrThread;
 
-    while (!(totalMoves < 0)) {
+    while (totalMoves < 0) {
         for (auto& moveInThread : movesPrThread) {
             moveInThread.push_back(availableMoves.back());
             availableMoves.pop_back();
@@ -213,8 +211,8 @@ Move Computer::GetMiniMaxMove(Board& board)
 
         minimaxResults.insert(minimaxResults.end(), threadMoves.begin(), threadMoves.end());
     }
-    /*
-    for (int i = 0; i < availableMoves.size(); i++) {
+
+    /*for (int i = 0; i < availableMoves.size(); i++) {
         Board copyBoard = board;
         copyBoard.Move_Piece(availableMoves[i]);
 
@@ -227,7 +225,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     }*/
 
     for (auto& result : minimaxResults) {
-        std::cout << result.second << " ss- ";
+        std::cout << "Score: " << result.second << " - ";
         result.first.Print_Move();
         if (result.second <= bestMoveScore) {
             bestMoveScore = result.second;

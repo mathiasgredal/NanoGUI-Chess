@@ -35,7 +35,13 @@ add_executable(chess MACOSX_BUNDLE WIN32
 	chess_GUI.cpp chess_GUI.h
 	chess_pieces.cpp chess_pieces.h chess_board.cpp
 	computer.cpp computer.h
-	movegenerator.cpp movegenerator.h)
+	movegenerator.cpp movegenerator.h
+	multiplayerclient.cpp multiplayerclient.h
+	multiplayerserver.cpp multiplayerserver.h)
+
+add_executable(server
+	server.cpp
+	multiplayerserver.cpp multiplayerserver.h)
 
 # Important for 3rd party libs
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")
@@ -43,6 +49,15 @@ set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")
 # Lastly, additional libraries may have been built for you.  In addition to linking
 # against NanoGUI, we need to link against those as well.
 target_link_libraries(chess nanogui ${NANOGUI_EXTRA_LIBS})
+
+
+add_subdirectory(libs/enet)
+
+include_directories(libs/enet/include)
+
+target_link_libraries(chess enet)
+target_link_libraries(server enet)
+
 
 # Now we need to compile the font file into the executable,
 # with the following library: https://github.com/vector-of-bool/cmrc
