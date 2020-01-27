@@ -24,13 +24,13 @@ enum Chess_Color { Black,
 class Move {
 public:
     // Initialisering
-    u_char r1, c1, r2, c2;
+    int r1, c1, r2, c2;
 
     // Constructor
-    Move(u_char row1, u_char col1, u_char row2, u_char col2);
+    Move(int row1, int col1, int row2, int col2);
 
     // Metode til at konvertere til vektor
-    vector<u_char> to_vector();
+    vector<int> to_vector();
 
     void Print_Move();
 
@@ -45,13 +45,13 @@ public:
 
 class Chess_Piece {
 public:
-    u_char row;
-    u_char col;
+    int row;
+    int col;
     Chess_Color color;
     Chess_Type chessType;
     bool initialMove;
 
-    Chess_Piece(u_char _row = 0, u_char _col = 0, Chess_Color _color = Chess_Color::Empty, Chess_Type _chessType = Chess_Type::EMPTY, bool _initialMove = true);
+    Chess_Piece(int _row = 0, int _col = 0, Chess_Color _color = Chess_Color::Empty, Chess_Type _chessType = Chess_Type::EMPTY, bool _initialMove = true);
     friend bool operator==(const Chess_Piece& b1, const Chess_Piece& b2);
     friend bool operator<(const Chess_Piece& b1, const Chess_Piece& b2);
 };
@@ -65,7 +65,7 @@ public:
     static array<Chess_Piece, 64> Default_Board();
 
     // Board functions
-    Chess_Piece Get_Piece(u_char row, u_char col);
+    Chess_Piece Get_Piece(int row, int col);
     Chess_Piece GetKing(Chess_Color color);
     vector<Chess_Piece> GetPiecesOfColor(Chess_Color color);
     void Move_Piece(Move mv);
@@ -73,11 +73,11 @@ public:
     int GetBoardScore();
 
     // Move functions
-    vector<Move> ValidMoves(u_char row, u_char col);
+    vector<Move> ValidMoves(int row, int col);
     bool ValidMove(Move usermove);
 
     // Endgame functions
-    bool IsAttacked(u_char row, u_char col, Chess_Color color);
+    bool IsAttacked(int row, int col, Chess_Color color);
     bool IsCheck();
     bool IsCheckMate();
     // bool IsStalemate();
@@ -96,6 +96,6 @@ int ChessPieceValue(Chess_Type chessType);
 
 const char* ChessPieceIcon(Chess_Type chessType, Chess_Color color);
 
-u_char GetChessPieceIndex(u_char row, u_char col);
+int GetChessPieceIndex(int row, int col);
 
 #endif // CHESS_PIECES_H

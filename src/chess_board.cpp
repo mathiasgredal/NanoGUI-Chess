@@ -47,7 +47,7 @@ array<Chess_Piece, 64> Board::Default_Board()
     default_pieces[GetChessPieceIndex(0, 6)] = Chess_Piece(0, 6, Chess_Color::Black, Chess_Type::Knight);
     default_pieces[GetChessPieceIndex(0, 7)] = Chess_Piece(0, 7, Chess_Color::Black, Chess_Type::Rook);
 
-    for (u_char i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         default_pieces[GetChessPieceIndex(1, i)] = Chess_Piece(1, i, Chess_Color::Black, Chess_Type::Pawn);
 
     default_pieces[GetChessPieceIndex(7, 0)] = Chess_Piece(7, 0, Chess_Color::White, Chess_Type::Rook);
@@ -59,13 +59,13 @@ array<Chess_Piece, 64> Board::Default_Board()
     default_pieces[GetChessPieceIndex(7, 6)] = Chess_Piece(7, 6, Chess_Color::White, Chess_Type::Knight);
     default_pieces[GetChessPieceIndex(7, 7)] = Chess_Piece(7, 7, Chess_Color::White, Chess_Type::Rook);
 
-    for (u_char i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         default_pieces[GetChessPieceIndex(6, i)] = Chess_Piece(6, i, Chess_Color::White, Chess_Type::Pawn);
 
     return default_pieces;
 }
 
-Chess_Piece Board::Get_Piece(u_char row, u_char col)
+Chess_Piece Board::Get_Piece(int row, int col)
 {
     if (row < 8 && col < 8)
         return chess_pieces[GetChessPieceIndex(row, col)];
@@ -144,7 +144,7 @@ vector<Move> PieceValidMoves(Chess_Piece piece, Board& board)
     }
 }
 
-vector<Move> Board::ValidMoves(u_char row, u_char col)
+vector<Move> Board::ValidMoves(int row, int col)
 {
 
     // Get Piece
@@ -222,7 +222,7 @@ Chess_Piece Board::GetKing(Chess_Color color)
     return Chess_Piece(0, 0, Chess_Color::Empty, Chess_Type::EMPTY);
 }
 
-bool Board::IsAttacked(u_char row, u_char col, Chess_Color color)
+bool Board::IsAttacked(int row, int col, Chess_Color color)
 {
     if (currentPlayer == Chess_Color::Empty)
         return false;
@@ -265,9 +265,9 @@ bool Board::IsCheckMate()
     }
 
     // Here we just check whether we can do any moves.
-    for (u_char i = 0; i < chess_pieces.size(); i++) {
-        const u_char c = i % 8;
-        const u_char r = (i - c) / 8;
+    for (int i = 0; i < chess_pieces.size(); i++) {
+        const int c = i % 8;
+        const int r = (i - c) / 8;
 
         if (ValidMoves(r, c).size() != 0)
             isCheckMate = false;

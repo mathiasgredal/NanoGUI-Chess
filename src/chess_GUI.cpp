@@ -162,8 +162,8 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
     nvgFillColor(nvgContext(), nvgRGBA(0, 0, 0, 255)); // Text color
     nvgTextAlign(nvgContext(), NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 
-    for (u_char r = 0; r < 8; r++) {
-        for (u_char c = 0; c < 8; c++) {
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
             nvgText(nvgContext(), s_size * (c + 1.5), s_size * (r + 1.5),
                 ChessPieceIcon(board.Get_Piece(r, c).chessType, board.Get_Piece(r, c).color), nullptr);
         }

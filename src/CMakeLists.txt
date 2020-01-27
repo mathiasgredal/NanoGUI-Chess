@@ -6,18 +6,24 @@ set (CMAKE_CXX_STANDARD 17)
 # Optimize code in release mode
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 
 # Copy DLL to executable dir
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+if(APPLE)
+	ADD_COMPILE_DEFINITIONS(GL_SILENCE_DEPRECATION)
+endif()
+
 # Disable building extras we won't need (pure C++ project)
-set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
-set(NANOGUI_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
-set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
-set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_EXAMPLE	OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_EXAMPLES	OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_PYTHON	OFF CACHE BOOL " " FORCE)
+set(NANOGUI_INSTALL			OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_SHARED	OFF CACHE BOOL " " FORCE)
+set(BUILD_SHARED_LIBS		OFF CACHE BOOL " " FORCE)
+
 
 # Add Nanogui
 add_subdirectory(libs/nanogui)
@@ -30,7 +36,7 @@ include_directories(libs/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 
 # Here we add all the code to be compiled
-add_executable(chess MACOSX_BUNDLE WIN32
+add_executable(chess
 	main.cpp
 	chess_GUI.cpp chess_GUI.h
 	chess_pieces.cpp chess_pieces.h chess_board.cpp

@@ -1,6 +1,6 @@
 #include "movegenerator.h"
 
-static bool IsOccupiedBlock(u_char row, u_char col, Board& board)
+static bool IsOccupiedBlock(int row, int col, Board& board)
 {
     // Move 1 forward if empty
     if (board.Get_Piece(row, col).chessType == Chess_Type::EMPTY)
@@ -12,7 +12,7 @@ static bool IsOccupiedBlock(u_char row, u_char col, Board& board)
         return true;
 }
 
-static bool PositionOutOfBounds(u_char row, u_char col)
+static bool PositionOutOfBounds(int row, int col)
 {
     // Move 1 forward if empty
     if (row < 8 && row >= 0 && col < 8 && col >= 0)

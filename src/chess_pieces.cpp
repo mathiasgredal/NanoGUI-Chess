@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Move::Move(u_char row1, u_char col1, u_char row2, u_char col2)
+Move::Move(int row1, int col1, int row2, int col2)
 {
     r1 = row1;
     c1 = col1;
@@ -17,12 +17,12 @@ void Move::Print_Move()
 }
 
 // Metode til at konvertere til vektor
-vector<u_char> Move::to_vector()
+vector<int> Move::to_vector()
 {
-    return vector<u_char>({ r1, c1, r2, c2 });
+    return vector<int>({ r1, c1, r2, c2 });
 }
 
-Chess_Piece::Chess_Piece(u_char _row, u_char _col, Chess_Color _color, Chess_Type _chessType, bool _initialMove)
+Chess_Piece::Chess_Piece(int _row, int _col, Chess_Color _color, Chess_Type _chessType, bool _initialMove)
 {
     row = _row;
     col = _col;
@@ -102,7 +102,7 @@ const char* ChessPieceIcon(Chess_Type chessType, Chess_Color color)
     }
 }
 
-u_char GetChessPieceIndex(u_char row, u_char col)
+int GetChessPieceIndex(int row, int col)
 {
     return 8 * row + col;
 }
