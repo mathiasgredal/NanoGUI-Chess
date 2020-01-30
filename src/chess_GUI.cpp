@@ -112,6 +112,11 @@ void chess_GUI::draw(NVGcontext* ctx)
     Screen::draw(ctx);
 }
 
+float lengthOfVec(Vector2f vec)
+{
+    return sqrt(pow(vec.x(), 2) + pow(vec.y(), 2));
+}
+
 void chess_GUI::DrawBoard(NVGcontext* ctx)
 {
     // Draw numbers and letters outside board
@@ -197,6 +202,54 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
             s_size * 0.5);
         nvgFillColor(nvgContext(), WIN_COLOR); // Text color
         nvgFill(nvgContext());
+    }
+
+    if (board.lastMove.r1 != -1) {
+        nvgBeginPath(nvgContext());
+        const Vector2f start = { s_size * (board.lastMove.c1 + 1.5f), s_size * (board.lastMove.r1 + 1.5f) };
+        const Vector2f originend = { s_size * (board.lastMove.c2 + 1.5f), s_size * (board.lastMove.r2 + 1.5f) };
+
+        const Vector2f end = start + ((originend - start) * (1 - (20 / lengthOfVec(originend - start))));
+
+        // Arrow body
+        nvgMoveTo(nvgContext(), start.x(), start.y());
+        nvgLineTo(nvgContext(), end.x(), end.y());
+
+        Vector2f between = ((start - end) * 20 / lengthOfVec((start - end)));
+
+        nvgStrokeWidth(nvgContext(), 5);
+        nvgStrokeColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
+        nvgStroke(nvgContext());
+        nvgStrokeWidth(nvgContext(), 1);
+
+        nvgBeginPath(nvgContext());
+        Vector2f rightarrow = { between.y(), -between.x() };
+        rightarrow += between;
+        rightarrow += end;
+
+        Vector2f leftarrow = { -between.y(), between.x() };
+        leftarrow += between;
+        leftarrow += end;
+
+        nvgMoveTo(nvgContext(), end.x(), end.y());
+        nvgLineTo(nvgContext(), rightarrow.x(), rightarrow.y());
+        nvgLineTo(nvgContext(), leftarrow.x(), leftarrow.y());
+        nvgLineTo(nvgContext(), end.x(), end.y());
+        nvgFillColor(nvgContext(), nvgRGBA(255, 255, 0, 255));
+        nvgFill(nvgContext());
+
+        /*
+        Vector2f leftarrow = { between.x(), -between.y() };
+        leftarrow += between;
+        leftarrow += end;
+
+        nvgMoveTo(nvgContext(), end.x(), end.y());
+        nvgLineTo(nvgContext(), leftarrow.x(), leftarrow.y());*/
+
+        nvgStrokeWidth(nvgContext(), 5);
+        nvgStrokeColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
+        nvgStroke(nvgContext());
+        nvgStrokeWidth(nvgContext(), 1);
     }
 }
 

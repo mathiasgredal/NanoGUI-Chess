@@ -69,7 +69,6 @@ public:
     Chess_Piece GetKing(Chess_Color color);
     vector<Chess_Piece> GetPiecesOfColor(Chess_Color color);
     void Move_Piece(Move mv);
-    void UndoMove();
     int GetBoardScore();
 
     // Move functions
@@ -85,7 +84,7 @@ public:
     // Member variables
     array<Chess_Piece, 64> chess_pieces;
     Chess_Color currentPlayer = Chess_Color::White;
-    array<Chess_Piece, 64> lastMove = {};
+    Move lastMove = Move(-1, -1, -1, -1);
 
     // Extra variables
     int board_size {};

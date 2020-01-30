@@ -79,7 +79,7 @@ void Board::Move_Piece(Move mv)
 
     // TODO: This method is doing very dangerous things, can potentially crash the program
     //chess_pieces[mv.r1][mv.c1]->RegisterMove(mv);
-    lastMove = chess_pieces;
+    lastMove = mv;
 
     chess_pieces[GetChessPieceIndex(mv.r2, mv.c2)] = chess_pieces[GetChessPieceIndex(mv.r1, mv.c1)];
     chess_pieces[GetChessPieceIndex(mv.r1, mv.c1)] = Chess_Piece(mv.r1, mv.c1, Chess_Color::Empty, Chess_Type::EMPTY);
@@ -117,11 +117,6 @@ void Board::Move_Piece(Move mv)
         currentPlayer = Chess_Color::Black;
     else
         currentPlayer = Chess_Color::White;
-}
-
-void Board::UndoMove()
-{
-    chess_pieces = lastMove;
 }
 
 vector<Move> PieceValidMoves(Chess_Piece piece, Board& board)

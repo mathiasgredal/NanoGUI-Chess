@@ -115,9 +115,7 @@ int minimax(int depth, Board& board, bool color, int alpha, int beta)
     // Another check rather than depth, is to check if the game has
     // ended(stalemate, checkmate)
     if (depth == 0)
-        return evaluateBoard(board) * (color); // when using depths of even number remove sign
-    else if (board.IsCheckMate())
-        return 1000000 * color;
+        return evaluateBoard(board) * (-color); // when using depths of even number remove sign
 
     int value = -999999;
 
@@ -128,7 +126,10 @@ int minimax(int depth, Board& board, bool color, int alpha, int beta)
 
         Board newboard = board;
         newboard.Move_Piece(gameMove);
-        value = max(value, -minimax(depth - 1, newboard, -color, -beta, -alpha));
+        if (board.IsCheckMate())
+            value = 100000000;
+        else
+            value = max(value, -minimax(depth - 1, newboard, -color, -beta, -alpha));
 
         alpha = max(alpha, value);
         if (alpha >= beta)
@@ -140,7 +141,7 @@ int minimax(int depth, Board& board, bool color, int alpha, int beta)
 
 const int threads_to_use = 4;
 
-std::vector<Move> sortMoves(std::vector<Move> moves, Board& board)
+/*std::vector<Move> sortMoves(std::vector<Move> moves, Board& board)
 {
     vector<pair<Move, int>> MoveScores(moves.size());
 
@@ -152,7 +153,7 @@ std::vector<Move> sortMoves(std::vector<Move> moves, Board& board)
     std::sort(MoveScores.begin(), MoveScores.end(), [](auto& left, auto& right) {
         return left.second < right.second;
     });
-}
+}*/
 
 std::vector<pair<Move, int>> GetThreadMoves(vector<Move> someMoves, Board someBoard, int depth)
 {
@@ -183,7 +184,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     start = std::clock();
 
     // For some reason this has to be even numbers
-    const int depth = 4;
+    const int depth = 3;
 
     // Whitepieces are positive, and black negative. Hence white is the maximising
     // player
@@ -237,7 +238,6 @@ Move Computer::GetMiniMaxMove(Board& board)
 
     for (auto& result : minimaxResults) {
         //std::cout << "Score: " << result.second << " - ";
-        result.first.Print_Move();
         if (result.second <= bestMoveScore) {
             bestMoveScore = result.second;
             bestMove = result.first;
