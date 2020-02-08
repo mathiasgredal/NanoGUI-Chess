@@ -18,7 +18,7 @@ using namespace std;
 
 CMRC_DECLARE(Assets);
 
-void Start()
+int main()
 {
     srand((unsigned)time(0));
     const int win_size = 10 * 70; // (8+2) x (8+2) squares of 70 pixels
@@ -34,16 +34,8 @@ void Start()
 
         chess_board->setVisible(true);
 
-        nanogui::mainloop();
+        nanogui::mainloop(20);
     }
 
     nanogui::shutdown();
 }
-
-int main()
-{
-    Start();
-
-    return 0;
-}
-// COM MOVE - SLUT

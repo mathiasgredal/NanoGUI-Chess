@@ -1,12 +1,15 @@
 #ifndef CHESS_GUI_H
 #define CHESS_GUI_H
 
-#include <iostream>
-#include <nanogui/nanogui.h>
-#include <vector>
-
 #include "chess_pieces.h"
 #include "computer.h"
+#include <chrono>
+#include <ctime>
+#include <future>
+#include <iostream>
+#include <nanogui/nanogui.h>
+#include <thread>
+#include <vector>
 
 using namespace nanogui;
 using namespace std;
@@ -62,12 +65,24 @@ private:
     void DrawSettings(NVGcontext* ctx);
     void DrawCredits(NVGcontext* ctx);
 
+    void AnimateMove(Move someMove);
+    std::atomic_bool complete = false;
+    std::atomic_bool calculating = false;
+    std::atomic_bool computerMoveReady = false;
+
+    std::future<Move> compMoveThread;
+
+    Move targetAnimation = Move(0, 0, 8, 0);
+    const double animationLengthInMilliSec = 200;
+    uint64_t animationStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
     // Input handling
     Vector2i click1 = { -1, -1 };
     void HandleInGame(const Vector2i& p);
     void HandleMainMenu(const Vector2i& p);
     void HandleSettings(const Vector2i& p);
     void HandleCredits(const Vector2i& p);
+    bool ComputerTurn();
 };
 
 #endif // CHESS_GUI.H

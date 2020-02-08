@@ -13,21 +13,6 @@ chess_GUI::chess_GUI(int W)
     board_size = W;
     s_size = W / 10;
 
-    /*
-  Theme* newTheme = new Theme(nvgContext());
-
-  newTheme->mWindowHeaderGradientTop = Color(0x23,0x27,0x2A,255);
-  newTheme->mWindowHeaderGradientBot = newTheme->mWindowHeaderGradientTop;
-
-  newTheme->mWindowTitleFocused = Color(255,255,255,255);
-  newTheme->mWindowTitleUnfocused = Color(255,255,255,255);
-
-  newTheme->mWindowCornerRadius = 0;
-  newTheme->mWindowDropShadowSize = 3;
-
-  setTheme(newTheme);
-  */
-
     auto* pausegui = new FormHelper(this);
     pausedWindow = pausegui->addWindow(Eigen::Vector2i(10, 10), "Paused");
 
@@ -61,18 +46,58 @@ chess_GUI::chess_GUI(int W)
     });
     gameselectgui->addButton("Computer vs. Computer", [this]() {
         StartGame(Player_Type::COMPUTER, Player_Type::COMPUTER);
+        drawAll();
+
+        compMoveThread = std::async(
+            std::launch::async, [](Board board, std::atomic_bool& complete) {
+                Move mv = Computer::GetMiniMaxMove(board);
+                complete = true;
+                return mv;
+            },
+            board, std::ref(complete));
+
+        while (!board.IsCheckMate()) {
+            auto animationProgress = (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - animationStart) / animationLengthInMilliSec;
+
+            if (complete && animationProgress > 1) {
+                complete = false;
+                Move compMove = compMoveThread.get();
+                board.Move_Piece(compMove);
+                AnimateMove(compMove);
+
+                compMoveThread = std::async(
+                    std::launch::async, [](Board board, std::atomic_bool& complete) {
+                        Move mv = Computer::GetMiniMaxMove(board);
+                        complete = true;
+                        return mv;
+                    },
+                    board, std::ref(complete));
+            }
+
+            glfwPollEvents();
+            drawAll();
+            if (ui_state != UI_STATE::IN_GAME) {
+                if (ui_state != UI_STATE::PAUSED)
+                    break;
+
+                while (ui_state == UI_STATE::PAUSED) {
+                    this_thread::sleep_for(10ms);
+                    drawAll();
+                    glfwPollEvents();
+                }
+            }
+
+            this_thread::sleep_for(20ms);
+        }
+
+        if (board.IsCheckMate())
+            pausedWindow->setVisible(true);
     });
 
     gameSelectWindow->center();
     gameSelectWindow->setFocused(true);
     gameSelectWindow->performLayout(nvgContext());
     gameSelectWindow->setVisible(false);
-
-    // If computer is white, start with a computer move
-    // if (COM == Chess_Color::White)
-    {
-        // update_piece(calc_com_move(board));
-    }
 }
 
 void chess_GUI::StartGame(Player_Type white, Player_Type black)
@@ -115,6 +140,20 @@ void chess_GUI::draw(NVGcontext* ctx)
 float lengthOfVec(Vector2f vec)
 {
     return sqrt(pow(vec.x(), 2) + pow(vec.y(), 2));
+}
+
+bool chess_GUI::ComputerTurn()
+{
+    if (WHITE == Player_Type::COMPUTER && BLACK == Player_Type::COMPUTER) {
+        return false;
+    }
+
+    if ((board.currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER) || //
+        (board.currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER)) {
+        return true;
+    }
+
+    return false;
 }
 
 void chess_GUI::DrawBoard(NVGcontext* ctx)
@@ -169,10 +208,30 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
 
     for (int r = 0; r < 8; r++) {
         for (int c = 0; c < 8; c++) {
+            // The animated piece shouldn't be drawn
+            if (r == board.lastMove.r2 && c == board.lastMove.c2)
+                continue;
+
             nvgText(nvgContext(), s_size * (c + 1.5), s_size * (r + 1.5),
                 ChessPieceIcon(board.Get_Piece(r, c).chessType, board.Get_Piece(r, c).color), nullptr);
         }
     }
+
+    // Draw animated piece
+    // Calculate a number between 1 and one that determines how much of the animation has gone by
+    auto animationProgress = (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - animationStart) / animationLengthInMilliSec;
+
+    // We want the animation to stop at 100%
+    if (animationProgress > 1)
+        animationProgress = 1;
+
+    Vector2f moveFromPos = { s_size * (board.lastMove.c1 + 1.5), s_size * (board.lastMove.r1 + 1.5) };
+    Vector2f moveToPos = { s_size * (board.lastMove.c2 + 1.5), s_size * (board.lastMove.r2 + 1.5) };
+
+    Vector2f targetPos = moveFromPos + ((moveToPos - moveFromPos) * animationProgress);
+
+    nvgText(nvgContext(), targetPos.x(), targetPos.y(),
+        ChessPieceIcon(board.Get_Piece(board.lastMove.r2, board.lastMove.c2).chessType, board.Get_Piece(board.lastMove.r2, board.lastMove.c2).color), nullptr);
 
     // After first click, mark it in upper left corner, and draw possible moves
     if (click1.x() >= 0 && board.Get_Piece(click1.x(), click1.y()).color == board.currentPlayer) {
@@ -204,10 +263,11 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
         nvgFill(nvgContext());
     }
 
+    // Draw and arrow showing the last move
     if (board.lastMove.r1 != -1) {
         nvgBeginPath(nvgContext());
         const Vector2f start = { s_size * (board.lastMove.c1 + 1.5f), s_size * (board.lastMove.r1 + 1.5f) };
-        const Vector2f originend = { s_size * (board.lastMove.c2 + 1.5f), s_size * (board.lastMove.r2 + 1.5f) };
+        const Vector2f originend = targetPos;
 
         const Vector2f end = start + ((originend - start) * (1 - (20 / lengthOfVec(originend - start))));
 
@@ -215,7 +275,7 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
         nvgMoveTo(nvgContext(), start.x(), start.y());
         nvgLineTo(nvgContext(), end.x(), end.y());
 
-        Vector2f between = ((start - end) * 20 / lengthOfVec((start - end)));
+        Vector2f between = ((start - end) * 10 / lengthOfVec((start - end)));
 
         nvgStrokeWidth(nvgContext(), 5);
         nvgStrokeColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
@@ -231,25 +291,35 @@ void chess_GUI::DrawBoard(NVGcontext* ctx)
         leftarrow += between;
         leftarrow += end;
 
+        // Draw triangle
         nvgMoveTo(nvgContext(), end.x(), end.y());
         nvgLineTo(nvgContext(), rightarrow.x(), rightarrow.y());
         nvgLineTo(nvgContext(), leftarrow.x(), leftarrow.y());
         nvgLineTo(nvgContext(), end.x(), end.y());
-        nvgFillColor(nvgContext(), nvgRGBA(255, 255, 0, 255));
+        nvgFillColor(nvgContext(), nvgRGBA(50, 50, 50, 255));
         nvgFill(nvgContext());
-
-        /*
-        Vector2f leftarrow = { between.x(), -between.y() };
-        leftarrow += between;
-        leftarrow += end;
-
-        nvgMoveTo(nvgContext(), end.x(), end.y());
-        nvgLineTo(nvgContext(), leftarrow.x(), leftarrow.y());*/
 
         nvgStrokeWidth(nvgContext(), 5);
         nvgStrokeColor(nvgContext(), nvgRGBA(255, 255, 255, 255));
         nvgStroke(nvgContext());
         nvgStrokeWidth(nvgContext(), 1);
+    }
+
+    if (ComputerTurn()) {
+        if (computerMoveReady) {
+            Move computerMove = compMoveThread.get();
+            board.Move_Piece(computerMove);
+            AnimateMove(computerMove);
+            computerMoveReady = false;
+
+            if (board.IsCheck()) {
+                cout << "Check" << endl;
+            }
+            if (board.IsCheckMate()) {
+                cout << "Checkmate" << endl;
+                pausedWindow->setVisible(true);
+            }
+        }
     }
 }
 
@@ -316,6 +386,12 @@ void chess_GUI::DrawSettings(NVGcontext* ctx)
 
 void chess_GUI::DrawCredits(NVGcontext* ctx) {}
 
+void chess_GUI::AnimateMove(Move someMove)
+{
+    animationStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    targetAnimation = someMove;
+}
+
 bool chess_GUI::keyboardEvent(int key, int /*scancode*/, int action,
     int /*modifiers*/)
 {
@@ -377,7 +453,8 @@ void chess_GUI::HandleInGame(const Vector2i& p)
 
         if (board.ValidMove(tmp)) {
             board.Move_Piece(tmp);
-            // update_piece(tmp); // Computer move
+            AnimateMove(tmp);
+
             if (board.IsCheck()) {
                 cout << "Check" << endl;
             }
@@ -386,27 +463,19 @@ void chess_GUI::HandleInGame(const Vector2i& p)
                 pausedWindow->setVisible(true);
             }
 
-            drawAll();
-
-            if (board.currentPlayer == Chess_Color::White && WHITE == Player_Type::COMPUTER || board.currentPlayer == Chess_Color::Black && BLACK == Player_Type::COMPUTER) {
-                board.Move_Piece(Computer::GetMiniMaxMove(board));
-                // update_piece(tmp); // Computer move
-                if (board.IsCheck()) {
-                    cout << "Check" << endl;
-                }
-                if (board.IsCheckMate()) {
-                    cout << "Checkmate" << endl;
-                    pausedWindow->setVisible(true);
-                }
+            if (ComputerTurn() && not calculating) {
+                compMoveThread = std::async(
+                    std::launch::async, [](Board board, std::atomic_bool& calculating, std::atomic_bool& ready) {
+                        calculating = true;
+                        Move mv = Computer::GetMiniMaxMove(board);
+                        calculating = false;
+                        ready = true;
+                        return mv;
+                    },
+                    board, std::ref(calculating), std::ref(computerMoveReady));
             }
-
-            if (board.IsAttacked(board.GetKing(board.currentPlayer).row, board.GetKing(board.currentPlayer).col + 1, Chess_Color::White))
-                std::cout << "is attacked 1" << std::endl;
-
-            if (board.IsAttacked(board.GetKing(board.currentPlayer).row, board.GetKing(board.currentPlayer).col + 2, Chess_Color::White))
-                std::cout << "is attacked 2" << std::endl;
         }
-
+        drawAll();
         click1 = { -1, -1 };
     }
 }

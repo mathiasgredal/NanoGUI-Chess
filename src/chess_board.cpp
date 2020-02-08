@@ -36,8 +36,6 @@ array<Chess_Piece, 64> Board::Default_Board()
 {
     array<Chess_Piece, 64> default_pieces;
 
-    // Black pieces
-
     default_pieces[GetChessPieceIndex(0, 0)] = Chess_Piece(0, 0, Chess_Color::Black, Chess_Type::Rook);
     default_pieces[GetChessPieceIndex(0, 1)] = Chess_Piece(0, 1, Chess_Color::Black, Chess_Type::Knight);
     default_pieces[GetChessPieceIndex(0, 2)] = Chess_Piece(0, 2, Chess_Color::Black, Chess_Type::Bishop);

@@ -110,12 +110,26 @@ int min(int val1, int val2)
         return val2;
 }
 
+//std::vector<Move> sortMoves(std::vector<Move> moves, Board& board)
+//{
+//    vector<pair<Move, int>> MoveScores(moves.size());
+
+//    for (int i = 0; i < moves.size(); i++) {
+//        MoveScores[i].first = moves[i];
+//        MoveScores[i].second = ChessPieceValue(board.Get_Piece(moves[i].r2, moves[i].c2).chessType);
+//    }
+
+//    std::sort(MoveScores.begin(), MoveScores.end(), [](auto& left, auto& right) {
+//        return left.second < right.second;
+//    });
+//}
+
 int minimax(int depth, Board& board, bool color, int alpha, int beta)
 {
     // Another check rather than depth, is to check if the game has
     // ended(stalemate, checkmate)
     if (depth == 0)
-        return evaluateBoard(board) * (-color); // when using depths of even number remove sign
+        return evaluateBoard(board) * (color); // when using depths of even number remove sign
 
     int value = -999999;
 
@@ -141,34 +155,29 @@ int minimax(int depth, Board& board, bool color, int alpha, int beta)
 
 const int threads_to_use = 4;
 
-/*std::vector<Move> sortMoves(std::vector<Move> moves, Board& board)
-{
-    vector<pair<Move, int>> MoveScores(moves.size());
-
-    for (int i = 0; i < moves.size(); i++) {
-        MoveScores[i].first = moves[i];
-        MoveScores[i].second = ChessPieceValue(board.Get_Piece(moves[i].r2, moves[i].c2).chessType);
-    }
-
-    std::sort(MoveScores.begin(), MoveScores.end(), [](auto& left, auto& right) {
-        return left.second < right.second;
-    });
-}*/
-
-std::vector<pair<Move, int>> GetThreadMoves(vector<Move> someMoves, Board someBoard, int depth)
+std::vector<pair<Move, int>> GetThreadMoves(vector<Move> someMoves, Board someBoard, int depth, int color)
 {
     std::vector<std::pair<Move, int>> threadResults = {};
 
+    int alpha = -10000000;
+    int beta = 10000000;
+
     for (auto& threadMove : someMoves) {
+
         Board copyBoard = someBoard;
 
         copyBoard.Move_Piece(threadMove);
 
-        int value = minimax(depth, copyBoard, -1, -10000000, 10000000);
+        int value = minimax(depth, copyBoard, color, -beta, -alpha);
         std::cout << "Score " << value << " - ";
         threadMove.Print_Move();
 
         threadResults.emplace_back(threadMove, value);
+
+        alpha = max(alpha, value);
+        if (alpha >= beta) {
+            break;
+        }
     }
 
     return threadResults;
@@ -176,15 +185,12 @@ std::vector<pair<Move, int>> GetThreadMoves(vector<Move> someMoves, Board someBo
 
 Move Computer::GetMiniMaxMove(Board& board)
 {
-
     positionCount = 0;
-    std::clock_t start;
+    std::clock_t start = std::clock();
     double duration;
 
-    start = std::clock();
-
     // For some reason this has to be even numbers
-    const int depth = 3;
+    const int depth = (board.currentPlayer == Chess_Color::White) ? 1 : 2;
 
     // Whitepieces are positive, and black negative. Hence white is the maximising
     // player
@@ -215,7 +221,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     std::vector<future<vector<pair<Move, int>>>> t;
 
     for (int i = 0; i < threads_to_use; i++) {
-        t.emplace_back(async(GetThreadMoves, movesPrThread[i], board, depth));
+        t.emplace_back(async(std::launch::async, GetThreadMoves, movesPrThread[i], board, depth, color));
     }
 
     for (auto& moveThread : t) {
@@ -223,6 +229,7 @@ Move Computer::GetMiniMaxMove(Board& board)
 
         minimaxResults.insert(minimaxResults.end(), threadMoves.begin(), threadMoves.end());
     }
+
     /*
     for (int i = 0; i < availableMoves.size(); i++) {
         Board copyBoard = board;

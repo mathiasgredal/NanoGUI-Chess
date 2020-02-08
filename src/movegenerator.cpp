@@ -1,24 +1,13 @@
 #include "movegenerator.h"
 
-static bool IsOccupiedBlock(int row, int col, Board& board)
+inline static bool IsOccupiedBlock(int row, int col, Board& board)
 {
-    // Move 1 forward if empty
-    if (board.Get_Piece(row, col).chessType == Chess_Type::EMPTY)
-        return false;
-
-    if (row < 8 && row >= 0 && board.Get_Piece(row, col).chessType == Chess_Type::EMPTY)
-        return false;
-    else
-        return true;
+    return !(row < 8 && row >= 0 && board.Get_Piece(row, col).chessType == Chess_Type::EMPTY);
 }
 
-static bool PositionOutOfBounds(int row, int col)
+inline static bool PositionOutOfBounds(int row, int col)
 {
-    // Move 1 forward if empty
-    if (row < 8 && row >= 0 && col < 8 && col >= 0)
-        return false;
-
-    return true;
+    return !(row < 8 && row >= 0 && col < 8 && col >= 0);
 }
 
 vector<Move> MoveGenerator::PawnMoves(Board& board, Chess_Piece& piece)
@@ -48,27 +37,16 @@ vector<Move> MoveGenerator::PawnMoves(Board& board, Chess_Piece& piece)
 
 vector<Move> MoveGenerator::KnightMoves(Board& board, Chess_Piece& piece)
 {
-    vector<Move> possibleMoves = {};
-
-    // Top right move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row + 2, piece.col + 1);
-    // Top left move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row + 2, piece.col - 1);
-
-    // Right top move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row + 1, piece.col + 2);
-    // Right bottom move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row - 1, piece.col + 2);
-
-    // Bottom right move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row - 2, piece.col + 1);
-    // Bottom left move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row - 2, piece.col - 1);
-
-    // Left top move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row + 1, piece.col - 2);
-    // Left bottom move
-    possibleMoves.emplace_back(piece.row, piece.col, piece.row - 1, piece.col - 2);
+    vector<Move> possibleMoves = {
+        Move(piece.row, piece.col, piece.row + 2, piece.col + 1), // Top right move
+        Move(piece.row, piece.col, piece.row + 2, piece.col - 1), // Top left move
+        Move(piece.row, piece.col, piece.row + 1, piece.col + 2), // Right top move
+        Move(piece.row, piece.col, piece.row - 1, piece.col + 2), // Right bottom move
+        Move(piece.row, piece.col, piece.row - 2, piece.col + 1), // Bottom right move
+        Move(piece.row, piece.col, piece.row - 2, piece.col - 1), // Bottom left move
+        Move(piece.row, piece.col, piece.row + 1, piece.col - 2), // Left top move
+        Move(piece.row, piece.col, piece.row - 1, piece.col - 2) // Left bottom move
+    };
 
     // remove moves out of bounds and targeting pieces of similar color
     auto it = possibleMoves.begin();
