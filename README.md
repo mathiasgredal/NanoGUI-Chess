@@ -10,7 +10,7 @@ You can either download a precompiled version from [here](https://github.com/mat
 You are going to need a working compiler either Clang, MinGW or GCC.
 You have to have CMake installed.
 - `git clone --recursive https://github.com/mathiasgredal/NanoGUI-Chess.git`
-- `cd NanoGUI-Chess`
+- `cd NanoGUI-Chess/src`
 - `mkdir build`
 - `cd build`
 - `cmake ..`
