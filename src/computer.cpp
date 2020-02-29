@@ -190,7 +190,7 @@ Move Computer::GetMiniMaxMove(Board& board)
     double duration;
 
     // For some reason this has to be even numbers
-    const int depth = (board.currentPlayer == Chess_Color::White) ? 1 : 2;
+    const int depth = (board.currentPlayer == Chess_Color::White) ? 3 : 2;
 
     // Whitepieces are positive, and black negative. Hence white is the maximising
     // player
