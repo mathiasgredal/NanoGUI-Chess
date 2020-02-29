@@ -1,21 +1,22 @@
-# Gruppe 1 - Gredal, Niklas og Peter
+# Simple Chess
+A simple chess implementation in c++.
+![Screenshot of the game](screenshoot.png)
 
-## Grupperoller
 
-**Gredal:**
+## Instructions
+You can either download a precompiled version from [here](https://github.com/mathiasgredal/NanoGUI-Chess/releases), or you can use the build instructions below:
 
-* Analytiker: Ansvar for kravspecifikation.
-* Afslutter: Ansvar for at finpudse projektet i henhold til krav før aflevering.
+#### Build Instructions:
+You are going to need a working compiler either Clang, MinGW or GCC.
+You have to have CMake installed.
+- `git clone --recursive https://github.com/mathiasgredal/NanoGUI-Chess.git`
+- `cd NanoGUI-Chess`
+- `mkdir build`
+- `cd build`
+- `cmake ..`
+- `cmake --build .`
 
-**Niklas:**
-
-* Kodeansvarlig: Skal kende til hele koden og har ansvar for fælles repo.
-* Evaluator: Ansvar for at gennemføre og dokumentere evalueringer.
-
-**Peter:**
-
-* Tester: Ansvar for afprøvning af programmet.
-* Arkitekt: Ansvar for strukturen i programmet (design).
+Now you can simply run the program by clicking on the executable file or run it from terminal.
 
 
 
