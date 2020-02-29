@@ -1,6 +1,6 @@
 # Simple Chess
 A simple chess implementation in c++.
-![Screenshot of the game](screenshoot.png)
+![Screenshot of the game](screenshot.png)
 
 
 ## Instructions
